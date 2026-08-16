@@ -543,17 +543,35 @@ function clearForm(){
 }
 
 
-function deleteTrade(index){
+async function deleteTrade(index){
 
-    if(confirm("Is trade ko delete karna hai?")){
-
-        trades.splice(index,1);
-
-        localStorage.setItem("trades",JSON.stringify(trades));
-
-        displayTrades();
+    if(!confirm("Is trade ko delete karna hai?")){
+        return;
     }
 
+    const trade = trades[index];
+
+    if(!trade || !trade.id){
+        alert("Trade ID nahi mili.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("trades")
+        .delete()
+        .eq("id", trade.id);
+
+    if(error){
+        console.error(error);
+        alert("Trade delete nahi hua: " + error.message);
+        return;
+    }
+
+    trades.splice(index, 1);
+
+    displayTrades();
+
+    alert("Trade cloud database se delete ho gaya. 🗑️✅");
 }
 
 
