@@ -225,6 +225,48 @@ td{
 <header>
     <h1>📊 My Trading Journal</h1>
 </header>
+    <div id="authBox" style="
+    background:#111923;
+    border:1px solid #293544;
+    border-radius:12px;
+    padding:15px;
+    margin:15px 20px;
+    max-width:500px;
+">
+
+    <h3 style="margin-bottom:12px;">🔐 Trading Journal Login</h3>
+
+    <input
+        type="email"
+        id="email"
+        placeholder="Email"
+        style="margin-bottom:10px;"
+    >
+
+    <input
+        type="password"
+        id="password"
+        placeholder="Password"
+        style="margin-bottom:10px;"
+    >
+
+    <div style="display:flex;gap:10px;">
+        <button onclick="signUp()">Sign Up</button>
+        <button onclick="login()">Login</button>
+    </div>
+
+    <button
+        onclick="logout()"
+        id="logoutBtn"
+        style="display:none;margin-top:10px;background:#dc2626;">
+        Logout
+    </button>
+
+    <p id="authMessage"
+       style="margin-top:10px;color:#8d9aaa;">
+    </p>
+
+</div>
 
 <div class="container">
 
@@ -659,6 +701,110 @@ displayTrades();
   );
 
   console.log("Supabase connected!");
+async function signUp(){
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if(!email || !password){
+        alert("Email aur password enter karo.");
+        return;
+    }
+
+    if(password.length < 6){
+        alert("Password kam se kam 6 characters ka hona chahiye.");
+        return;
+    }
+
+    const { data, error } = await supabaseClient.auth.signUp({
+        email: email,
+        password: password
+    });
+
+    if(error){
+        document.getElementById("authMessage").innerText =
+            error.message;
+        return;
+    }
+
+    document.getElementById("authMessage").innerText =
+        "Account ban gaya! Email verify karke Login karo. ✅";
+}
+
+
+async function login(){
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if(!email || !password){
+        alert("Email aur password enter karo.");
+        return;
+    }
+
+    const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+    if(error){
+        document.getElementById("authMessage").innerText =
+            error.message;
+        return;
+    }
+
+    document.getElementById("authMessage").innerText =
+        "Login successful! ✅";
+
+    document.getElementById("logoutBtn").style.display = "block";
+
+    if(typeof loadTrades === "function"){
+        loadTrades();
+    }
+}
+
+
+async function logout(){
+
+    const { error } =
+        await supabaseClient.auth.signOut();
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    document.getElementById("authMessage").innerText =
+        "Logged out.";
+
+    document.getElementById("logoutBtn").style.display =
+        "none";
+}
+
+
+async function checkLogin(){
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if(user){
+
+        document.getElementById("authMessage").innerText =
+            "Logged in: " + user.email;
+
+        document.getElementById("logoutBtn").style.display =
+            "block";
+
+        if(typeof loadTrades === "function"){
+            loadTrades();
+        }
+    }
+}
+
+
+checkLogin();
 </script>
 
 </body>
