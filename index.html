@@ -782,7 +782,51 @@ async function logout(){
         "none";
 }
 
+async function loadTrades(){
 
+    const {
+        data: { user },
+        error: userError
+    } = await supabaseClient.auth.getUser();
+
+    if(userError || !user){
+        return;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("trades")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("trade_date", { ascending: false });
+
+    if(error){
+
+        console.error(error);
+
+        alert("Trades load nahi ho paaye: " + error.message);
+
+        return;
+    }
+
+    // Supabase data ko website ke format mein convert karna
+    trades = data.map(trade => ({
+        id: trade.id,
+        date: trade.trade_date,
+        symbol: trade.symbol,
+        type: trade.trade_type,
+        entry: Number(trade.entry_price),
+        exit: Number(trade.exit_price),
+        quantity: Number(trade.quantity),
+        stopLoss: trade.stop_loss ? Number(trade.stop_loss) : 0,
+        target: trade.target ? Number(trade.target) : 0,
+        pnl: Number(trade.pnl),
+        rr: trade.risk_reward ? Number(trade.risk_reward) : 0,
+        strategy: trade.strategy || ""
+    }));
+
+    displayTrades();
+    updateStats();
+}
 async function checkLogin(){
 
     const {
