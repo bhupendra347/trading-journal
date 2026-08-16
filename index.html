@@ -542,7 +542,34 @@ function clearForm(){
     document.getElementById("result").style.display="none";
 }
 
+async function editTrade(index){
 
+    const trade = trades[index];
+
+    if(!trade){
+        alert("Trade nahi mila.");
+        return;
+    }
+
+    document.getElementById("date").value = trade.date;
+    document.getElementById("symbol").value = trade.symbol;
+    document.getElementById("type").value = trade.type;
+    document.getElementById("entry").value = trade.entry;
+    document.getElementById("exit").value = trade.exit;
+    document.getElementById("quantity").value = trade.quantity;
+    document.getElementById("stopLoss").value = trade.stopLoss || "";
+    document.getElementById("target").value = trade.target || "";
+    document.getElementById("strategy").value = trade.strategy || "";
+
+    window.editingTradeId = trade.id;
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+    alert("Trade edit mode mein aa gaya. Details change karke Save Trade dabao.");
+}
 async function deleteTrade(index){
 
     if(!confirm("Is trade ko delete karna hai?")){
@@ -644,6 +671,11 @@ function displayTrades(){
         <td>${trade.strategy || "-"}</td>
 
         <td>
+        <button
+class="edit-btn"
+onclick="editTrade(${index})">
+Edit
+</button>
         <button class="delete-btn"
         onclick="deleteTrade(${index})">
         Delete
