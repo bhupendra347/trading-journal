@@ -400,7 +400,7 @@ function calculateTrade(){
 }
 
 
-function saveTrade(){
+async function saveTrade(){
 
     const date = document.getElementById("date").value;
     const symbol = document.getElementById("symbol").value;
@@ -414,9 +414,7 @@ function saveTrade(){
     const strategy = document.getElementById("strategy").value;
 
     if(!date || !symbol || !entry || !exit || !quantity){
-
         alert("Date, Symbol, Entry, Exit aur Quantity bharna zaroori hai.");
-
         return;
     }
 
@@ -442,35 +440,52 @@ function saveTrade(){
         }
     }
 
-    let rr = risk > 0 ? reward / risk : 0;
+    const rr = risk > 0 ? reward / risk : null;
 
-    const trade = {
-        date:date,
-        symbol:symbol,
-        type:type,
-        entry:entry,
-        exit:exit,
-        quantity:quantity,
-        stopLoss:stopLoss,
-        target:target,
-        pnl:pnl,
-        rr:rr,
-        strategy:strategy
-    };
+    const {
+        data: { user },
+        error: userError
+    } = await supabaseClient.auth.getUser();
 
-    trades.push(trade);
+    if(userError || !user){
 
-    localStorage.setItem("trades",JSON.stringify(trades));
+        alert("Pehle Login karna hoga.");
+
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("trades")
+        .insert([{
+            user_id: user.id,
+            trade_date: date,
+            symbol: symbol,
+            trade_type: type,
+            entry_price: entry,
+            exit_price: exit,
+            quantity: quantity,
+            stop_loss: stopLoss || null,
+            target: target || null,
+            pnl: pnl,
+            risk_reward: rr,
+            strategy: strategy || null
+        }]);
+
+    if(error){
+
+        console.error(error);
+
+        alert("Trade save nahi hua: " + error.message);
+
+        return;
+    }
+
+    alert("Trade cloud database mein save ho gaya! ☁️✅");
 
     clearForm();
 
-    displayTrades();
-
-    alert("Trade saved successfully! ✅");
-
+    loadTrades();
 }
-
-
 function clearForm(){
 
     document.getElementById("date").value="";
