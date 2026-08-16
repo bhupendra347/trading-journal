@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading Journal</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0b0f14;
+    color: #ffffff;
+}
+
+header {
+    background: #111820;
+    padding: 18px;
+    border-bottom: 1px solid #26313d;
+}
+
+header h1 {
+    font-size: 22px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: #111820;
+    border: 1px solid #26313d;
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.card p {
+    color: #8d99a6;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.card h2 {
+    font-size: 24px;
+}
+
+.profit {
+    color: #22c55e;
+}
+
+.loss {
+    color: #ef4444;
+}
+
+.section {
+    background: #111820;
+    border: 1px solid #26313d;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.section h2 {
+    margin-bottom: 15px;
+}
+
+.form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #303b48;
+    background: #0b0f14;
+    color: white;
+}
+
+button {
+    background: #2563eb;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #26313d;
+}
+
+th {
+    color: #8d99a6;
+    font-size: 13px;
+}
+
+.empty {
+    color: #8d99a6;
+    text-align: center;
+    padding: 25px;
+}
+
+@media(max-width: 700px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form {
+        grid-template-columns: 1fr;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    .container {
+        padding: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>📊 My Trading Journal</h1>
+</header>
+
+<div class="container">
+
+    <div class="stats">
+
+        <div class="card">
+            <p>Total Trades</p>
+            <h2 id="totalTrades">0</h2>
+        </div>
+
+        <div class="card">
+            <p>Winning Trades</p>
+            <h2 class="profit" id="winningTrades">0</h2>
+        </div>
+
+        <div class="card">
+            <p>Losing Trades</p>
+            <h2 class="loss" id="losingTrades">0</h2>
+        </div>
+
+        <div class="card">
+            <p>Total P&L</p>
+            <h2 id="totalPnL">₹0</h2>
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h2>➕ Add Trade</h2>
+
+        <div class="form">
+
+            <input type="date" id="date">
+
+            <input type="text" id="symbol" placeholder="Stock / Crypto">
+
+            <select id="type">
+                <option value="BUY">BUY</option>
+                <option value="SELL">SELL</option>
+            </select>
+
+            <input type="number" id="entry" placeholder="Entry Price">
+
+            <input type="number" id="exit" placeholder="Exit Price">
+
+            <input type="number" id="quantity" placeholder="Quantity">
+
+            <input type="number" id="pnl" placeholder="Profit / Loss ₹">
+
+            <input type="text" id="strategy" placeholder="Strategy">
+
+            <button onclick="addTrade()">Add Trade</button>
+
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h2>📋 Trade History</h2>
+
+        <div id="tradeTable">
+            <div class="empty">No trades added yet.</div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+let trades = JSON.parse(localStorage.getItem("trades")) || [];
+
+function addTrade() {
+
+    const date = document.getElementById("date").value;
+    const symbol = document.getElementById("symbol").value;
+    const type = document.getElementById("type").value;
+    const entry = document.getElementById("entry").value;
+    const exit = document.getElementById("exit").value;
+    const quantity = document.getElementById("quantity").value;
+    const pnl = Number(document.getElementById("pnl").value);
+    const strategy = document.getElementById("strategy").value;
+
+    if (!date || !symbol || !pnl) {
+        alert("Please enter Date, Stock/Crypto and P&L");
+        return;
+    }
+
+    const trade = {
+        date,
+        symbol,
+        type,
+        entry,
+        exit,
+        quantity,
+        pnl,
+        strategy
+    };
+
+    trades.push(trade);
+
+    localStorage.setItem("trades", JSON.stringify(trades));
+
+    document.querySelectorAll("input").forEach(input => {
+        input.value = "";
+    });
+
+    displayTrades();
+
+}
+
+function deleteTrade(index) {
+
+    trades.splice(index, 1);
+
+    localStorage.setItem("trades", JSON.stringify(trades));
+
+    displayTrades();
+
+}
+
+function displayTrades() {
+
+    const table = document.getElementById("tradeTable");
+
+    if (trades.length === 0) {
+
+        table.innerHTML =
+        '<div class="empty">No trades added yet.</div>';
+
+        updateStats();
+
+        return;
+    }
+
+    let html = `
+    <table>
+
+    <tr>
+        <th>Date</th>
+        <th>Symbol</th>
+        <th>Type</th>
+        <th>Entry</th>
+        <th>Exit</th>
+        <th>P&L</th>
+        <th>Strategy</th>
+        <th>Action</th>
+    </tr>
+    `;
+
+    trades.forEach((trade, index) => {
+
+        const pnlClass =
+        trade.pnl >= 0 ? "profit" : "loss";
+
+        html += `
+        <tr>
+
+            <td>${trade.date}</td>
+
+            <td>${trade.symbol}</td>
+
+            <td>${trade.type}</td>
+
+            <td>${trade.entry}</td>
+
+            <td>${trade.exit}</td>
+
+            <td class="${pnlClass}">
+                ₹${trade.pnl}
+            </td>
+
+            <td>${trade.strategy}</td>
+
+            <td>
+                <button onclick="deleteTrade(${index})">
+                    Delete
+                </button>
+            </td>
+
+        </tr>
+        `;
+
+    });
+
+    html += `</table>`;
+
+    table.innerHTML = html;
+
+    updateStats();
+
+}
+
+function updateStats() {
+
+    const total = trades.length;
+
+    const winning =
+    trades.filter(t => t.pnl > 0).length;
+
+    const losing =
+    trades.filter(t => t.pnl < 0).length;
+
+    const pnl =
+    trades.reduce((sum, t) => sum + Number(t.pnl), 0);
+
+    document.getElementById("totalTrades").innerText = total;
+
+    document.getElementById("winningTrades").innerText = winning;
+
+    document.getElementById("losingTrades").innerText = losing;
+
+    const pnlElement =
+    document.getElementById("totalPnL");
+
+    pnlElement.innerText =
+    "₹" + pnl;
+
+    pnlElement.className =
+    pnl >= 0 ? "profit" : "loss";
+
+}
+
+displayTrades();
+
+</script>
+
+</body>
+</html>
