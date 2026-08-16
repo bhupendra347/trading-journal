@@ -490,42 +490,70 @@ async function saveTrade(){
     } = await supabaseClient.auth.getUser();
 
     if(userError || !user){
-
         alert("Pehle Login karna hoga.");
-
         return;
     }
 
-    const { error } = await supabaseClient
-        .from("trades")
-        .insert([{
-            user_id: user.id,
-            trade_date: date,
-            symbol: symbol,
-            trade_type: type,
-            entry_price: entry,
-            exit_price: exit,
-            quantity: quantity,
-            stop_loss: stopLoss || null,
-            target: target || null,
-            pnl: pnl,
-            risk_reward: rr,
-            strategy: strategy || null
-        }]);
+    const tradeData = {
+        trade_date: date,
+        symbol: symbol,
+        trade_type: type,
+        entry_price: entry,
+        exit_price: exit,
+        quantity: quantity,
+        stop_loss: stopLoss || null,
+        target: target || null,
+        pnl: pnl,
+        risk_reward: rr,
+        strategy: strategy || null
+    };
+
+    let error;
+
+    // EDIT MODE
+    if(window.editingTradeId){
+
+        const result = await supabaseClient
+            .from("trades")
+            .update(tradeData)
+            .eq("id", window.editingTradeId)
+            .eq("user_id", user.id);
+
+        error = result.error;
+
+        if(!error){
+            alert("Trade successfully update ho gaya! ✅");
+        }
+
+        window.editingTradeId = null;
+
+    }else{
+
+        // NEW TRADE
+        const result = await supabaseClient
+            .from("trades")
+            .insert([{
+                user_id: user.id,
+                ...tradeData
+            }]);
+
+        error = result.error;
+
+        if(!error){
+            alert("Trade cloud database mein save ho gaya! ☁️✅");
+        }
+    }
 
     if(error){
 
         console.error(error);
 
-        alert("Trade save nahi hua: " + error.message);
+        alert("Trade save/update nahi hua: " + error.message);
 
         return;
     }
 
-    alert("Trade cloud database mein save ho gaya! ☁️✅");
-
     clearForm();
-
     loadTrades();
 }
 function clearForm(){
