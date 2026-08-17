@@ -930,13 +930,18 @@ async function checkLogin(){
 
         if(typeof loadTrades === "function"){
             loadTrades();
-        function updateEquityCurve(){
+       function updateEquityCurve(){
 
     const canvas = document.getElementById("equityChart");
 
     if(!canvas){
         return;
     }
+
+    const rect = canvas.getBoundingClientRect();
+
+    canvas.width = rect.width;
+    canvas.height = 250;
 
     const ctx = canvas.getContext("2d");
 
@@ -945,112 +950,101 @@ async function checkLogin(){
     );
 
     let equity = 0;
-
     const points = [0];
 
     sortedTrades.forEach(trade => {
-
         equity += Number(trade.pnl) || 0;
-
         points.push(equity);
-
     });
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if(points.length <= 1){
-
+        ctx.fillStyle = "#ffffff";
         ctx.font = "16px Arial";
         ctx.textAlign = "center";
+
         ctx.fillText(
             "Equity Curve ke liye trades add karein",
             canvas.width / 2,
-            canvas.height / 2
+            125
         );
 
         return;
     }
 
-    const width = canvas.width;
-    const height = canvas.height;
-
-    const padding = 35;
+    const padding = 40;
 
     const max = Math.max(...points);
     const min = Math.min(...points);
-
     const range = max - min || 1;
 
     ctx.beginPath();
 
     points.forEach((value, index) => {
 
-        const x =
-            padding +
+        const x = padding +
             (index / (points.length - 1)) *
-            (width - padding * 2);
+            (canvas.width - padding * 2);
 
-        const y =
-            height -
-            padding -
+        const y = canvas.height - padding -
             ((value - min) / range) *
-            (height - padding * 2);
+            (canvas.height - padding * 2);
 
         if(index === 0){
             ctx.moveTo(x, y);
         }else{
             ctx.lineTo(x, y);
         }
-
     });
 
     ctx.lineWidth = 3;
-    ctx.strokeStyle = "#2563eb";
+    ctx.strokeStyle = "#00ff88";
     ctx.stroke();
 
-    // Starting point
-    ctx.fillStyle = "#2563eb";
+    // Points
+    points.forEach((value, index) => {
+
+        const x = padding +
+            (index / (points.length - 1)) *
+            (canvas.width - padding * 2);
+
+        const y = canvas.height - padding -
+            ((value - min) / range) *
+            (canvas.height - padding * 2);
+
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+
+        ctx.fillStyle = "#00ff88";
+        ctx.fill();
+    });
+
+    // P&L values
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "13px Arial";
+    ctx.textAlign = "center";
 
     points.forEach((value, index) => {
 
-        const x =
-            padding +
+        const x = padding +
             (index / (points.length - 1)) *
-            (width - padding * 2);
+            (canvas.width - padding * 2);
 
-        const y =
-            height -
-            padding -
+        const y = canvas.height - padding -
             ((value - min) / range) *
-            (height - padding * 2);
+            (canvas.height - padding * 2);
 
-        ctx.beginPath();
-        ctx.arc(x, y, 4, 0, Math.PI * 2);
-        ctx.fill();
-
+        ctx.fillText(
+            "₹" + value.toFixed(0),
+            x,
+            y - 12
+        );
     });
-
-    // Zero line
-    if(min <= 0 && max >= 0){
-
-        const zeroY =
-            height -
-            padding -
-            ((0 - min) / range) *
-            (height - padding * 2);
-
-        ctx.beginPath();
-        ctx.setLineDash([5, 5]);
-        ctx.moveTo(padding, zeroY);
-        ctx.lineTo(width - padding, zeroY);
-        ctx.strokeStyle = "#999";
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-    }
-
 }
+    
+
+
         }
     }
 }
