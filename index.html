@@ -298,7 +298,15 @@ td{
     </div>
 
 </div>
+<div class="section">
 
+    <h2>📈 Equity Curve</h2>
+
+    <div style="width:100%; overflow:hidden;">
+        <canvas id="equityChart" height="250"></canvas>
+    </div>
+
+</div>
 
 <div class="section">
 
@@ -904,6 +912,7 @@ async function loadTrades(){
 
     displayTrades();
     updateStats();
+    updateEquityCurve();
 }
 async function checkLogin(){
 
@@ -921,6 +930,127 @@ async function checkLogin(){
 
         if(typeof loadTrades === "function"){
             loadTrades();
+        function updateEquityCurve(){
+
+    const canvas = document.getElementById("equityChart");
+
+    if(!canvas){
+        return;
+    }
+
+    const ctx = canvas.getContext("2d");
+
+    const sortedTrades = [...trades].sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+    );
+
+    let equity = 0;
+
+    const points = [0];
+
+    sortedTrades.forEach(trade => {
+
+        equity += Number(trade.pnl) || 0;
+
+        points.push(equity);
+
+    });
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if(points.length <= 1){
+
+        ctx.font = "16px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(
+            "Equity Curve ke liye trades add karein",
+            canvas.width / 2,
+            canvas.height / 2
+        );
+
+        return;
+    }
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    const padding = 35;
+
+    const max = Math.max(...points);
+    const min = Math.min(...points);
+
+    const range = max - min || 1;
+
+    ctx.beginPath();
+
+    points.forEach((value, index) => {
+
+        const x =
+            padding +
+            (index / (points.length - 1)) *
+            (width - padding * 2);
+
+        const y =
+            height -
+            padding -
+            ((value - min) / range) *
+            (height - padding * 2);
+
+        if(index === 0){
+            ctx.moveTo(x, y);
+        }else{
+            ctx.lineTo(x, y);
+        }
+
+    });
+
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#2563eb";
+    ctx.stroke();
+
+    // Starting point
+    ctx.fillStyle = "#2563eb";
+
+    points.forEach((value, index) => {
+
+        const x =
+            padding +
+            (index / (points.length - 1)) *
+            (width - padding * 2);
+
+        const y =
+            height -
+            padding -
+            ((value - min) / range) *
+            (height - padding * 2);
+
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+    });
+
+    // Zero line
+    if(min <= 0 && max >= 0){
+
+        const zeroY =
+            height -
+            padding -
+            ((0 - min) / range) *
+            (height - padding * 2);
+
+        ctx.beginPath();
+        ctx.setLineDash([5, 5]);
+        ctx.moveTo(padding, zeroY);
+        ctx.lineTo(width - padding, zeroY);
+        ctx.strokeStyle = "#999";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+    }
+
+}
         }
     }
 }
