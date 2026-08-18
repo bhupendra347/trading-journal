@@ -1058,7 +1058,7 @@ async function checkLogin(){
     `;
 }    
        function updateWinLossAnalysis(){
-console.log("WinLoss function chal raha hai", trades);
+console.log("PNL DATA:", trades.map(t => t.pnl));
     const wins = trades.filter(trade => Number(trade.pnl) > 0);
     const losses = trades.filter(trade => Number(trade.pnl) < 0);
 
