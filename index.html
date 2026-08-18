@@ -930,126 +930,94 @@ async function checkLogin(){
 
         if(typeof loadTrades === "function"){
             loadTrades();
-      function updateEquityCurve(){
-alert("Equity function chal raha hai");
+  function updateEquityCurve(){
+
     const chart = document.getElementById("equityChart");
 
     if(!chart){
+        console.log("equityChart nahi mila");
         return;
     }
 
     if(!trades || trades.length === 0){
-
-        chart.innerHTML =
-            '<div style="text-align:center;padding:80px 10px;color:white;">Equity Curve ke liye trades add karein</div>';
-
+        chart.innerHTML = `
+            <div style="color:white;text-align:center;padding:80px 10px;">
+                Equity Curve ke liye trades add karein
+            </div>
+        `;
         return;
     }
 
-    const sortedTrades = [...trades].sort(
-        (a,b) => new Date(a.date) - new Date(b.date)
-    );
-
     let equity = 0;
-    const points = [0];
+    let points = [0];
 
-    sortedTrades.forEach(trade => {
+    trades
+        .slice()
+        .sort((a,b) => new Date(a.date) - new Date(b.date))
+        .forEach(trade => {
 
-        equity += Number(trade.pnl) || 0;
+            equity += Number(trade.pnl) || 0;
+            points.push(equity);
 
-        points.push(equity);
-
-    });
+        });
 
     const width = 900;
     const height = 250;
-    const padding = 45;
+    const padding = 40;
 
     const max = Math.max(...points);
     const min = Math.min(...points);
     const range = max - min || 1;
 
-    const coords = points.map((value,index) => {
+    let path = "";
+    let circles = "";
+
+    points.forEach((value,index) => {
 
         const x =
             padding +
-            (index / (points.length - 1)) *
+            index / (points.length - 1) *
             (width - padding * 2);
 
         const y =
-            height -
-            padding -
+            height - padding -
             ((value - min) / range) *
             (height - padding * 2);
 
-        return {x,y,value};
-
-    });
-
-    let path = "";
-
-    coords.forEach((point,index) => {
-
         if(index === 0){
-
-            path += `M ${point.x} ${point.y}`;
-
+            path += `M ${x} ${y}`;
         }else{
-
-            path += ` L ${point.x} ${point.y}`;
-
+            path += ` L ${x} ${y}`;
         }
 
-    });
-
-    let circles = "";
-
-    coords.forEach(point => {
-
         circles += `
-            <circle
-                cx="${point.x}"
-                cy="${point.y}"
-                r="6"
-                fill="#00ff88">
-            </circle>
-
-            <text
-                x="${point.x}"
-                y="${point.y - 12}"
-                fill="white"
-                text-anchor="middle"
-                font-size="14">
-                ₹${point.value.toFixed(0)}
+            <circle cx="${x}" cy="${y}" r="5" fill="#00ff88"/>
+            <text x="${x}" y="${y-12}"
+                  fill="white"
+                  text-anchor="middle"
+                  font-size="13">
+                ₹${value.toFixed(0)}
             </text>
         `;
-
     });
 
     chart.innerHTML = `
-
         <svg
             viewBox="0 0 ${width} ${height}"
             width="100%"
-            height="250"
-            style="display:block;">
+            height="250">
 
             <path
                 d="${path}"
                 fill="none"
                 stroke="#00ff88"
-                stroke-width="4"
-                stroke-linecap="round"
-                stroke-linejoin="round">
-            </path>
+                stroke-width="4"/>
 
             ${circles}
 
         </svg>
-
     `;
-
-}
+}    
         }
     }
 }
