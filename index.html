@@ -307,7 +307,45 @@ td{
     </div>
 
 </div>
+<div class="section">
 
+    <h2>📊 Win / Loss Analysis</h2>
+
+    <div class="stats-grid">
+
+        <div class="card">
+            <p>Total Profit</p>
+            <h2 class="profit" id="totalProfit">₹0</h2>
+        </div>
+
+        <div class="card">
+            <p>Total Loss</p>
+            <h2 class="loss" id="totalLoss">₹0</h2>
+        </div>
+
+        <div class="card">
+            <p>Average Win</p>
+            <h2 class="profit" id="averageWin">₹0</h2>
+        </div>
+
+        <div class="card">
+            <p>Average Loss</p>
+            <h2 class="loss" id="averageLoss">₹0</h2>
+        </div>
+
+        <div class="card">
+            <p>Best Trade</p>
+            <h2 class="profit" id="bestTrade">₹0</h2>
+        </div>
+
+        <div class="card">
+            <p>Worst Trade</p>
+            <h2 class="loss" id="worstTrade">₹0</h2>
+        </div>
+
+    </div>
+
+</div>
 <div class="section">
 
 <h2>➕ Add Trade</h2>
@@ -1018,6 +1056,55 @@ async function checkLogin(){
         </svg>
     `;
 }    
+       function updateWinLossAnalysis(){
+
+    const wins = trades.filter(trade => Number(trade.pnl) > 0);
+    const losses = trades.filter(trade => Number(trade.pnl) < 0);
+
+    const totalProfit = wins.reduce(
+        (sum, trade) => sum + Number(trade.pnl),
+        0
+    );
+
+    const totalLoss = losses.reduce(
+        (sum, trade) => sum + Number(trade.pnl),
+        0
+    );
+
+    const averageWin =
+        wins.length > 0 ? totalProfit / wins.length : 0;
+
+    const averageLoss =
+        losses.length > 0 ? totalLoss / losses.length : 0;
+
+    const bestTrade =
+        trades.length > 0
+        ? Math.max(...trades.map(trade => Number(trade.pnl)))
+        : 0;
+
+    const worstTrade =
+        trades.length > 0
+        ? Math.min(...trades.map(trade => Number(trade.pnl)))
+        : 0;
+
+    document.getElementById("totalProfit").textContent =
+        "₹" + totalProfit.toFixed(2);
+
+    document.getElementById("totalLoss").textContent =
+        "₹" + totalLoss.toFixed(2);
+
+    document.getElementById("averageWin").textContent =
+        "₹" + averageWin.toFixed(2);
+
+    document.getElementById("averageLoss").textContent =
+        "₹" + averageLoss.toFixed(2);
+
+    document.getElementById("bestTrade").textContent =
+        "₹" + bestTrade.toFixed(2);
+
+    document.getElementById("worstTrade").textContent =
+        "₹" + worstTrade.toFixed(2);
+}
         }
     }
 }
