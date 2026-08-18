@@ -950,8 +950,11 @@ async function loadTrades(){
 
 displayTrades();
 updateStats();
-updateEquityCurve();
-updateWinLossAnalysis();
+
+setTimeout(() => {
+    updateEquityCurve();
+    updateWinLossAnalysis();
+}, 100);
 }
 function updateEquityCurve(){
 
@@ -1043,6 +1046,7 @@ function updateEquityCurve(){
 
 function updateWinLossAnalysis(){
 
+    console.log("TRADES FOR ANALYSIS:", trades);
     const wins = trades.filter(
         trade => Number(trade.pnl) > 0
     );
