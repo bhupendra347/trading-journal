@@ -950,26 +950,10 @@ async function loadTrades(){
 
 displayTrades();
 updateStats();
-updateEquityChart();
+updateEquityCurve();
 updateWinLossAnalysis();
 }
-async function checkLogin(){
-
-    const {
-        data: { user }
-    } = await supabaseClient.auth.getUser();
-
-    if(user){
-
-        document.getElementById("authMessage").innerText =
-            "Logged in: " + user.email;
-
-        document.getElementById("logoutBtn").style.display =
-            "block";
-
-        if(typeof loadTrades === "function"){
-            loadTrades();
-  function updateEquityCurve(){
+function updateEquityCurve(){
 
     const chart = document.getElementById("equityChart");
 
@@ -994,10 +978,8 @@ async function checkLogin(){
         .slice()
         .sort((a,b) => new Date(a.date) - new Date(b.date))
         .forEach(trade => {
-
             equity += Number(trade.pnl) || 0;
             points.push(equity);
-
         });
 
     const width = 900;
@@ -1056,11 +1038,18 @@ async function checkLogin(){
 
         </svg>
     `;
-}    
-       function updateWinLossAnalysis(){
-console.log("PNL DATA:", trades.map(t => t.pnl));
-    const wins = trades.filter(trade => Number(trade.pnl) > 0);
-    const losses = trades.filter(trade => Number(trade.pnl) < 0);
+}
+
+
+function updateWinLossAnalysis(){
+
+    const wins = trades.filter(
+        trade => Number(trade.pnl) > 0
+    );
+
+    const losses = trades.filter(
+        trade => Number(trade.pnl) < 0
+    );
 
     const totalProfit = wins.reduce(
         (sum, trade) => sum + Number(trade.pnl),
@@ -1073,19 +1062,27 @@ console.log("PNL DATA:", trades.map(t => t.pnl));
     );
 
     const averageWin =
-        wins.length > 0 ? totalProfit / wins.length : 0;
+        wins.length > 0
+        ? totalProfit / wins.length
+        : 0;
 
     const averageLoss =
-        losses.length > 0 ? totalLoss / losses.length : 0;
+        losses.length > 0
+        ? totalLoss / losses.length
+        : 0;
 
     const bestTrade =
         trades.length > 0
-        ? Math.max(...trades.map(trade => Number(trade.pnl)))
+        ? Math.max(...trades.map(
+            trade => Number(trade.pnl)
+        ))
         : 0;
 
     const worstTrade =
         trades.length > 0
-        ? Math.min(...trades.map(trade => Number(trade.pnl)))
+        ? Math.min(...trades.map(
+            trade => Number(trade.pnl)
+        ))
         : 0;
 
     document.getElementById("totalProfit").textContent =
@@ -1106,13 +1103,25 @@ console.log("PNL DATA:", trades.map(t => t.pnl));
     document.getElementById("worstTrade").textContent =
         "₹" + worstTrade.toFixed(2);
 }
-        }
+
+
+async function checkLogin(){
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if(user){
+
+        document.getElementById("authMessage").innerText =
+            "Logged in: " + user.email;
+
+        document.getElementById("logoutBtn").style.display =
+            "block";
+
+        loadTrades();
     }
 }
 
 
 checkLogin();
-</script>
-
-</body>
-</html>
