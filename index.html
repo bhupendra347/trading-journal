@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
 <title>Trading Journal</title>
 
 <style>
+
 *{
     box-sizing:border-box;
     margin:0;
@@ -15,12 +21,12 @@
 body{
     font-family:Arial,sans-serif;
     background:#080c12;
-    color:#fff;
+    color:white;
 }
 
 header{
     background:#101720;
-    border-bottom:1px solid #263241;
+    border-bottom:1px solid #293544;
     padding:18px 20px;
 }
 
@@ -33,6 +39,45 @@ header h1{
     margin:auto;
     padding:20px;
 }
+
+.section{
+    background:#111923;
+    border:1px solid #293544;
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.section h2{
+    margin-bottom:18px;
+}
+
+/* AUTH */
+
+.auth-box{
+    background:#111923;
+    border:1px solid #293544;
+    border-radius:12px;
+    padding:20px;
+    margin:20px auto;
+    max-width:500px;
+}
+
+.auth-box h2{
+    margin-bottom:15px;
+}
+
+.auth-buttons{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+.auth-buttons button{
+    flex:1;
+}
+
+/* STATS */
 
 .stats{
     display:grid;
@@ -59,24 +104,14 @@ header h1{
 }
 
 .profit{
-    color:#22c55e;
+    color:#22c55e !important;
 }
 
 .loss{
-    color:#ef4444;
+    color:#ef4444 !important;
 }
 
-.section{
-    background:#111923;
-    border:1px solid #293544;
-    border-radius:12px;
-    padding:20px;
-    margin-bottom:20px;
-}
-
-.section h2{
-    margin-bottom:18px;
-}
+/* FORM */
 
 .form{
     display:grid;
@@ -84,17 +119,19 @@ header h1{
     gap:13px;
 }
 
-input,select{
+input,
+select{
     width:100%;
     padding:12px;
     border-radius:8px;
     border:1px solid #344150;
     background:#080c12;
-    color:#fff;
+    color:white;
     outline:none;
 }
 
-input:focus,select:focus{
+input:focus,
+select:focus{
     border-color:#3b82f6;
 }
 
@@ -120,6 +157,16 @@ button:hover{
 .calculate:hover{
     background:#15803d;
 }
+
+.logout{
+    background:#dc2626;
+}
+
+.logout:hover{
+    background:#b91c1c;
+}
+
+/* RESULT */
 
 .result{
     background:#0b1119;
@@ -148,18 +195,28 @@ button:hover{
     margin-bottom:5px;
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:15px;
-    min-width:950px;
+/* WIN LOSS */
+
+.analysis-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
 }
+
+/* TABLE */
 
 .table-container{
     overflow-x:auto;
 }
 
-th,td{
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1000px;
+}
+
+th,
+td{
     padding:12px 8px;
     text-align:left;
     border-bottom:1px solid #293544;
@@ -174,10 +231,17 @@ td{
     font-size:13px;
 }
 
+.edit-btn{
+    width:auto;
+    background:#2563eb;
+    padding:7px 10px;
+    margin-right:5px;
+}
+
 .delete-btn{
+    width:auto;
     background:#dc2626;
     padding:7px 10px;
-    width:auto;
 }
 
 .delete-btn:hover{
@@ -187,10 +251,23 @@ td{
 .empty{
     color:#8d9aaa;
     text-align:center;
-    padding:25px;
+    padding:30px;
 }
 
+/* EQUITY */
+
+#equityChart{
+    width:100%;
+    height:280px;
+    display:block;
+    background:#0b1119;
+    border-radius:10px;
+}
+
+/* MOBILE */
+
 @media(max-width:900px){
+
     .stats{
         grid-template-columns:repeat(2,1fr);
     }
@@ -198,9 +275,14 @@ td{
     .form{
         grid-template-columns:repeat(2,1fr);
     }
+
+    .analysis-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
 }
 
 @media(max-width:600px){
+
     .container{
         padding:12px;
     }
@@ -213,209 +295,442 @@ td{
         grid-template-columns:1fr;
     }
 
-    .result-grid{
+    .analysis-grid{
         grid-template-columns:1fr 1fr;
     }
+
+    .result-grid{
+        grid-template-columns:1fr;
+    }
+
+    .auth-box{
+        margin:12px;
+    }
+
 }
+
 </style>
+
 </head>
+
 
 <body>
 
+
 <header>
-    <h1>📊 My Trading Journal</h1>
+
+<h1>📊 My Trading Journal</h1>
+
 </header>
-    <div id="authBox" style="
-    background:#111923;
-    border:1px solid #293544;
-    border-radius:12px;
-    padding:15px;
-    margin:15px 20px;
-    max-width:500px;
-">
 
-    <h3 style="margin-bottom:12px;">🔐 Trading Journal Login</h3>
 
-    <input
-        type="email"
-        id="email"
-        placeholder="Email"
-        style="margin-bottom:10px;"
-    >
+<!-- =========================
+     LOGIN / SIGNUP
+========================= -->
 
-    <input
-        type="password"
-        id="password"
-        placeholder="Password"
-        style="margin-bottom:10px;"
-    >
+<div class="auth-box">
 
-    <div style="display:flex;gap:10px;">
-        <button onclick="signUp()">Sign Up</button>
-        <button onclick="login()">Login</button>
-    </div>
+<h2>🔐 Trading Journal Login</h2>
 
-    <button
-        onclick="logout()"
-        id="logoutBtn"
-        style="display:none;margin-top:10px;background:#dc2626;">
-        Logout
-    </button>
+<input
+    type="email"
+    id="email"
+    placeholder="Email"
+    style="margin-bottom:10px;"
+>
 
-    <p id="authMessage"
-       style="margin-top:10px;color:#8d9aaa;">
-    </p>
+<input
+    type="password"
+    id="password"
+    placeholder="Password"
+>
 
-</div>
+<div class="auth-buttons">
 
-<div class="container">
+<button onclick="signUp()">
+    Sign Up
+</button>
 
-<div class="stats">
-
-    <div class="card">
-        <p>Total Trades</p>
-        <h2 id="totalTrades">0</h2>
-    </div>
-
-    <div class="card">
-        <p>Win Rate</p>
-        <h2 class="profit" id="winRate">0%</h2>
-    </div>
-
-    <div class="card">
-        <p>Winning Trades</p>
-        <h2 class="profit" id="winningTrades">0</h2>
-    </div>
-
-    <div class="card">
-        <p>Losing Trades</p>
-        <h2 class="loss" id="losingTrades">0</h2>
-    </div>
-
-    <div class="card">
-        <p>Total P&L</p>
-        <h2 id="totalPnL">₹0</h2>
-    </div>
-
-</div>
-<div class="section">
-
-    <h2>📈 Equity Curve</h2>
-
-    <div style="width:100%; overflow:hidden;">
-        <canvas id="equityChart"></canvas>
-    </div>
-
-</div>
-<div class="section">
-
-    <h2>📊 Win / Loss Analysis</h2>
-
-    <div class="stats-grid">
-
-        <div class="card">
-            <p>Total Profit</p>
-            <h2 class="profit" id="totalProfit">₹0</h2>
-        </div>
-
-        <div class="card">
-            <p>Total Loss</p>
-            <h2 class="loss" id="totalLoss">₹0</h2>
-        </div>
-
-        <div class="card">
-            <p>Average Win</p>
-            <h2 class="profit" id="averageWin">₹0</h2>
-        </div>
-
-        <div class="card">
-            <p>Average Loss</p>
-            <h2 class="loss" id="averageLoss">₹0</h2>
-        </div>
-
-        <div class="card">
-            <p>Best Trade</p>
-            <h2 class="profit" id="bestTrade">₹0</h2>
-        </div>
-
-        <div class="card">
-            <p>Worst Trade</p>
-            <h2 class="loss" id="worstTrade">₹0</h2>
-        </div>
-
-    </div>
-
-</div>
-<div class="section">
-
-<h2>➕ Add Trade</h2>
-
-<div class="form">
-
-<input type="date" id="date">
-
-<input type="text" id="symbol" placeholder="Stock / Crypto">
-
-<select id="type">
-    <option value="BUY">BUY</option>
-    <option value="SELL">SELL</option>
-</select>
-
-<input type="number" id="entry" placeholder="Entry Price">
-
-<input type="number" id="exit" placeholder="Exit Price">
-
-<input type="number" id="quantity" placeholder="Quantity">
-
-<input type="number" id="stopLoss" placeholder="Stop Loss">
-
-<input type="number" id="target" placeholder="Target">
-
-<input type="text" id="strategy" placeholder="Strategy">
-
-<button class="calculate" onclick="calculateTrade()">
-    Calculate Trade
+<button onclick="login()">
+    Login
 </button>
 
 </div>
 
+<button
+    id="logoutBtn"
+    class="logout"
+    onclick="logout()"
+    style="display:none;margin-top:10px;"
+>
+    Logout
+</button>
 
-<div class="result" id="result">
+<p
+    id="authMessage"
+    style="margin-top:12px;color:#8d9aaa;"
+></p>
+
+</div>
+
+
+<div class="container">
+
+
+<!-- =========================
+     MAIN STATS
+========================= -->
+
+<div class="stats">
+
+<div class="card">
+
+<p>Total Trades</p>
+
+<h2 id="totalTrades">
+0
+</h2>
+
+</div>
+
+
+<div class="card">
+
+<p>Win Rate</p>
+
+<h2
+id="winRate"
+class="profit"
+>
+0%
+</h2>
+
+</div>
+
+
+<div class="card">
+
+<p>Winning Trades</p>
+
+<h2
+id="winningTrades"
+class="profit"
+>
+0
+</h2>
+
+</div>
+
+
+<div class="card">
+
+<p>Losing Trades</p>
+
+<h2
+id="losingTrades"
+class="loss"
+>
+0
+</h2>
+
+</div>
+
+
+<div class="card">
+
+<p>Total P&L</p>
+
+<h2 id="totalPnL">
+₹0.00
+</h2>
+
+</div>
+
+</div>
+
+
+<!-- =========================
+     EQUITY CURVE
+========================= -->
+
+<div class="section">
+
+<h2>📈 Equity Curve</h2>
+
+<canvas id="equityChart"></canvas>
+
+</div>
+
+
+<!-- =========================
+     WIN LOSS ANALYSIS
+========================= -->
+
+<div class="section">
+
+<h2>📊 Win / Loss Analysis</h2>
+
+<div class="analysis-grid">
+
+
+<div class="card">
+
+<p>Total Profit</p>
+
+<h2
+id="totalProfit"
+class="profit"
+>
+₹0.00
+</h2>
+
+</div>
+
+
+<div class="card">
+
+<p>Total Loss</p>
+
+<h2
+id="totalLoss"
+class="loss"
+>
+₹0.00
+</h2>
+
+</div>
+
+
+<div class="card">
+
+<p>Average Win</p>
+
+<h2
+id="averageWin"
+class="profit"
+>
+₹0.00
+</h2>
+
+</div>
+
+
+<div class="card">
+
+<p>Average Loss</p>
+
+<h2
+id="averageLoss"
+class="loss"
+>
+₹0.00
+</h2>
+
+</div>
+
+
+<div class="card">
+
+<p>Best Trade</p>
+
+<h2
+id="bestTrade"
+class="profit"
+>
+₹0.00
+</h2>
+
+</div>
+
+
+<div class="card">
+
+<p>Worst Trade</p>
+
+<h2
+id="worstTrade"
+class="loss"
+>
+₹0.00
+</h2>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- =========================
+     ADD TRADE
+========================= -->
+
+<div class="section">
+
+<h2>➕ Add Trade</h2>
+
+
+<div class="form">
+
+
+<input
+    type="date"
+    id="date"
+>
+
+
+<input
+    type="text"
+    id="symbol"
+    placeholder="Stock / Crypto"
+>
+
+
+<select id="type">
+
+<option value="BUY">
+BUY
+</option>
+
+<option value="SELL">
+SELL
+</option>
+
+</select>
+
+
+<input
+    type="number"
+    id="entry"
+    placeholder="Entry Price"
+>
+
+
+<input
+    type="number"
+    id="exit"
+    placeholder="Exit Price"
+>
+
+
+<input
+    type="number"
+    id="quantity"
+    placeholder="Quantity"
+>
+
+
+<input
+    type="number"
+    id="stopLoss"
+    placeholder="Stop Loss"
+>
+
+
+<input
+    type="number"
+    id="target"
+    placeholder="Target"
+>
+
+
+<input
+    type="text"
+    id="strategy"
+    placeholder="Strategy"
+>
+
+
+<button
+    class="calculate"
+    onclick="calculateTrade()"
+>
+Calculate Trade
+</button>
+
+
+</div>
+
+
+<!-- RESULT -->
+
+<div
+    class="result"
+    id="result"
+>
+
 
 <div class="result-grid">
 
-<div class="result-box">
-    <small>Profit / Loss</small>
-    <strong id="calculatedPnL">₹0</strong>
-</div>
 
 <div class="result-box">
-    <small>Risk / Reward</small>
-    <strong id="calculatedRR">0 R</strong>
+
+<small>
+Profit / Loss
+</small>
+
+<strong id="calculatedPnL">
+₹0.00
+</strong>
+
 </div>
+
 
 <div class="result-box">
-    <small>Result</small>
-    <strong id="tradeResult">-</strong>
-</div>
+
+<small>
+Risk / Reward
+</small>
+
+<strong id="calculatedRR">
+N/A
+</strong>
 
 </div>
+
+
+<div class="result-box">
+
+<small>
+Result
+</small>
+
+<strong id="tradeResult">
+-
+</strong>
+
+</div>
+
+
+</div>
+
 
 <br>
 
-<button onclick="saveTrade()">💾 Save Trade</button>
+
+<button onclick="saveTrade()">
+💾 Save Trade
+</button>
+
 
 </div>
 
 </div>
 
+
+<!-- =========================
+     TRADE HISTORY
+========================= -->
 
 <div class="section">
 
 <h2>📋 Trade History</h2>
 
 <div id="tradeTable">
-    <div class="empty">No trades added yet.</div>
+
+<div class="empty">
+No trades added yet.
 </div>
 
 </div>
@@ -423,709 +738,824 @@ td{
 </div>
 
 
-<script>
+</div>
 
-let trades = JSON.parse(localStorage.getItem("trades")) || [];
 
-function calculateTrade(){
+<!-- ==================================================
+     SUPABASE LIBRARY
+================================================== -->
 
-    const entry = Number(document.getElementById("entry").value);
-    const exit = Number(document.getElementById("exit").value);
-    const quantity = Number(document.getElementById("quantity").value);
-    const stopLoss = Number(document.getElementById("stopLoss").value);
-    const target = Number(document.getElementById("target").value);
-    const type = document.getElementById("type").value;
-
-    if(!entry || !exit || !quantity){
-        alert("Entry, Exit aur Quantity enter karo.");
-        return;
-    }
-
-    let pnl;
-
-    if(type === "BUY"){
-        pnl = (exit - entry) * quantity;
-    }else{
-        pnl = (entry - exit) * quantity;
-    }
-
-    let risk = 0;
-    let reward = 0;
-
-    if(stopLoss && target){
-
-        if(type === "BUY"){
-            risk = Math.abs(entry - stopLoss);
-            reward = Math.abs(target - entry);
-        }else{
-            risk = Math.abs(stopLoss - entry);
-            reward = Math.abs(entry - target);
-        }
-    }
-
-    let rr = risk > 0 ? reward / risk : 0;
-
-    document.getElementById("calculatedPnL").innerText =
-        "₹" + pnl.toFixed(2);
-
-    document.getElementById("calculatedPnL").className =
-        pnl >= 0 ? "profit" : "loss";
-
-    document.getElementById("calculatedRR").innerText =
-        rr > 0 ? rr.toFixed(2) + " R" : "N/A";
-
-    document.getElementById("tradeResult").innerText =
-        pnl > 0 ? "WIN 🟢" :
-        pnl < 0 ? "LOSS 🔴" :
-        "BREAK EVEN";
-
-    document.getElementById("tradeResult").className =
-        pnl > 0 ? "profit" :
-        pnl < 0 ? "loss" : "";
-
-    document.getElementById("result").style.display = "block";
-
-}
-
-
-async function saveTrade(){
-
-    const date = document.getElementById("date").value;
-    const symbol = document.getElementById("symbol").value;
-    const type = document.getElementById("type").value;
-
-    const entry = Number(document.getElementById("entry").value);
-    const exit = Number(document.getElementById("exit").value);
-    const quantity = Number(document.getElementById("quantity").value);
-    const stopLoss = Number(document.getElementById("stopLoss").value);
-    const target = Number(document.getElementById("target").value);
-    const strategy = document.getElementById("strategy").value;
-
-    if(!date || !symbol || !entry || !exit || !quantity){
-        alert("Date, Symbol, Entry, Exit aur Quantity bharna zaroori hai.");
-        return;
-    }
-
-    let pnl;
-
-    if(type === "BUY"){
-        pnl = (exit - entry) * quantity;
-    }else{
-        pnl = (entry - exit) * quantity;
-    }
-
-    let risk = 0;
-    let reward = 0;
-
-    if(stopLoss && target){
-
-        if(type === "BUY"){
-            risk = Math.abs(entry - stopLoss);
-            reward = Math.abs(target - entry);
-        }else{
-            risk = Math.abs(stopLoss - entry);
-            reward = Math.abs(entry - target);
-        }
-    }
-
-    const rr = risk > 0 ? reward / risk : null;
-
-    const {
-        data: { user },
-        error: userError
-    } = await supabaseClient.auth.getUser();
-
-    if(userError || !user){
-        alert("Pehle Login karna hoga.");
-        return;
-    }
-
-    const tradeData = {
-        trade_date: date,
-        symbol: symbol,
-        trade_type: type,
-        entry_price: entry,
-        exit_price: exit,
-        quantity: quantity,
-        stop_loss: stopLoss || null,
-        target: target || null,
-        pnl: pnl,
-        risk_reward: rr,
-        strategy: strategy || null
-    };
-
-    let error;
-
-    // EDIT MODE
-    if(window.editingTradeId){
-
-        const result = await supabaseClient
-            .from("trades")
-            .update(tradeData)
-            .eq("id", window.editingTradeId)
-            .eq("user_id", user.id);
-
-        error = result.error;
-
-        if(!error){
-            alert("Trade successfully update ho gaya! ✅");
-        }
-
-        window.editingTradeId = null;
-
-    }else{
-
-        // NEW TRADE
-        const result = await supabaseClient
-            .from("trades")
-            .insert([{
-                user_id: user.id,
-                ...tradeData
-            }]);
-
-        error = result.error;
-
-        if(!error){
-            alert("Trade cloud database mein save ho gaya! ☁️✅");
-        }
-    }
-
-    if(error){
-
-        console.error(error);
-
-        alert("Trade save/update nahi hua: " + error.message);
-
-        return;
-    }
-
-    clearForm();
-    loadTrades();
-}
-function clearForm(){
-
-    document.getElementById("date").value="";
-    document.getElementById("symbol").value="";
-    document.getElementById("entry").value="";
-    document.getElementById("exit").value="";
-    document.getElementById("quantity").value="";
-    document.getElementById("stopLoss").value="";
-    document.getElementById("target").value="";
-    document.getElementById("strategy").value="";
-
-    document.getElementById("result").style.display="none";
-}
-
-async function editTrade(index){
-
-    const trade = trades[index];
-
-    if(!trade){
-        alert("Trade nahi mila.");
-        return;
-    }
-
-    document.getElementById("date").value = trade.date;
-    document.getElementById("symbol").value = trade.symbol;
-    document.getElementById("type").value = trade.type;
-    document.getElementById("entry").value = trade.entry;
-    document.getElementById("exit").value = trade.exit;
-    document.getElementById("quantity").value = trade.quantity;
-    document.getElementById("stopLoss").value = trade.stopLoss || "";
-    document.getElementById("target").value = trade.target || "";
-    document.getElementById("strategy").value = trade.strategy || "";
-
-    window.editingTradeId = trade.id;
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
-    alert("Trade edit mode mein aa gaya. Details change karke Save Trade dabao.");
-}
-async function deleteTrade(index){
-
-    if(!confirm("Is trade ko delete karna hai?")){
-        return;
-    }
-
-    const trade = trades[index];
-
-    if(!trade || !trade.id){
-        alert("Trade ID nahi mili.");
-        return;
-    }
-
-    const { error } = await supabaseClient
-        .from("trades")
-        .delete()
-        .eq("id", trade.id);
-
-    if(error){
-        console.error(error);
-        alert("Trade delete nahi hua: " + error.message);
-        return;
-    }
-
-    trades.splice(index, 1);
-
-    displayTrades();
-
-    alert("Trade cloud database se delete ho gaya. 🗑️✅");
-}
-
-
-function displayTrades(){
-
-    const table = document.getElementById("tradeTable");
-
-    if(trades.length === 0){
-
-        table.innerHTML =
-        '<div class="empty">No trades added yet.</div>';
-
-        updateStats();
-
-        return;
-    }
-
-    let html = `
-    <div class="table-container">
-    <table>
-
-    <tr>
-        <th>Date</th>
-        <th>Symbol</th>
-        <th>Type</th>
-        <th>Entry</th>
-        <th>Exit</th>
-        <th>Qty</th>
-        <th>SL</th>
-        <th>Target</th>
-        <th>P&L</th>
-        <th>R:R</th>
-        <th>Strategy</th>
-        <th>Action</th>
-    </tr>
-    `;
-
-    trades.forEach((trade,index)=>{
-
-        const pnlClass =
-        Number(trade.pnl) >= 0 ? "profit" : "loss";
-
-        html += `
-        <tr>
-
-        <td>${trade.date || "-"}</td>
-
-        <td>${trade.symbol || "-"}</td>
-
-        <td>${trade.type || "-"}</td>
-
-        <td>₹${trade.entry || "-"}</td>
-
-        <td>₹${trade.exit || "-"}</td>
-
-        <td>${trade.quantity || "-"}</td>
-
-        <td>${trade.stopLoss || "-"}</td>
-
-        <td>${trade.target || "-"}</td>
-
-        <td class="${pnlClass}">
-        ₹${Number(trade.pnl).toFixed(2)}
-        </td>
-
-        <td>
-        ${trade.rr ? Number(trade.rr).toFixed(2)+" R" : "-"}
-        </td>
-
-        <td>${trade.strategy || "-"}</td>
-
-        <td>
-        <button
-class="edit-btn"
-onclick="editTrade(${index})">
-Edit
-</button>
-        <button class="delete-btn"
-        onclick="deleteTrade(${index})">
-        Delete
-        </button>
-        </td>
-
-        </tr>
-        `;
-
-    });
-
-    html += `
-    </table>
-    </div>
-    `;
-
-    table.innerHTML = html;
-
-    updateStats();
-
-}
-
-
-function updateStats(){
-
-    const total = trades.length;
-
-    const winning =
-    trades.filter(t => Number(t.pnl) > 0).length;
-
-    const losing =
-    trades.filter(t => Number(t.pnl) < 0).length;
-
-    const pnl =
-    trades.reduce((sum,t)=>sum + Number(t.pnl || 0),0);
-
-    const winRate =
-    total > 0 ? (winning / total) * 100 : 0;
-
-    document.getElementById("totalTrades").innerText = total;
-
-    document.getElementById("winningTrades").innerText = winning;
-
-    document.getElementById("losingTrades").innerText = losing;
-
-    document.getElementById("winRate").innerText =
-    winRate.toFixed(1) + "%";
-
-    const pnlElement =
-    document.getElementById("totalPnL");
-
-    pnlElement.innerText =
-    "₹" + pnl.toFixed(2);
-
-    pnlElement.className =
-    pnl >= 0 ? "profit" : "loss";
-
-}
-
-
-displayTrades();
-
-</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
-  const SUPABASE_URL = "https://lwfsdysymwqpvypemjya.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_TmdAcRrJAB-KttOhhYXUGQ_ROjGugvQ";
 
-  const supabaseClient = window.supabase.createClient(
+<!-- ==================================================
+     MAIN JAVASCRIPT
+================================================== -->
+
+<script>
+
+
+/* =========================================
+   SUPABASE CONNECTION
+========================================= */
+
+const SUPABASE_URL =
+"https://lwfsdysymwqpvypemjya.supabase.co";
+
+
+const SUPABASE_KEY =
+"sb_publishable_TmdAcRrJAB-KttOhhYXUGQ_ROjGugvQ";
+
+
+const supabaseClient =
+window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
-  );
+);
 
-  console.log("Supabase connected!");
+
+console.log(
+    "Supabase connected ✅"
+);
+
+
+/* =========================================
+   GLOBAL VARIABLES
+========================================= */
+
+let trades = [];
+
+window.editingTradeId = null;
+
+
+/* =========================================
+   SIGN UP
+========================================= */
+
 async function signUp(){
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const email =
+        document.getElementById("email")
+        .value
+        .trim();
+
+    const password =
+        document.getElementById("password")
+        .value;
+
 
     if(!email || !password){
-        alert("Email aur password enter karo.");
+
+        alert(
+            "Email aur password enter karo."
+        );
+
         return;
     }
+
 
     if(password.length < 6){
-        alert("Password kam se kam 6 characters ka hona chahiye.");
+
+        alert(
+            "Password kam se kam 6 characters ka hona chahiye."
+        );
+
         return;
     }
 
-    const { data, error } = await supabaseClient.auth.signUp({
-        email: email,
-        password: password
-    });
+
+    const { error } =
+        await supabaseClient.auth.signUp({
+
+            email:email,
+
+            password:password
+
+        });
+
 
     if(error){
-        document.getElementById("authMessage").innerText =
+
+        console.error(
+            "SIGNUP ERROR:",
+            error
+        );
+
+        document.getElementById(
+            "authMessage"
+        ).innerText =
             error.message;
+
         return;
     }
 
-    document.getElementById("authMessage").innerText =
+
+    document.getElementById(
+        "authMessage"
+    ).innerText =
         "Account ban gaya! Email verify karke Login karo. ✅";
+
 }
 
+
+/* =========================================
+   LOGIN
+========================================= */
 
 async function login(){
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const email =
+        document.getElementById("email")
+        .value
+        .trim();
+
+
+    const password =
+        document.getElementById("password")
+        .value;
+
 
     if(!email || !password){
-        alert("Email aur password enter karo.");
+
+        alert(
+            "Email aur password enter karo."
+        );
+
         return;
     }
 
-    const { data, error } =
-        await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
+
+    const { error } =
+        await supabaseClient.auth
+        .signInWithPassword({
+
+            email:email,
+
+            password:password
+
         });
 
+
     if(error){
-        document.getElementById("authMessage").innerText =
+
+        console.error(
+            "LOGIN ERROR:",
+            error
+        );
+
+        document.getElementById(
+            "authMessage"
+        ).innerText =
             error.message;
+
         return;
     }
 
-    document.getElementById("authMessage").innerText =
+
+    document.getElementById(
+        "authMessage"
+    ).innerText =
         "Login successful! ✅";
 
-    document.getElementById("logoutBtn").style.display = "block";
 
-    if(typeof loadTrades === "function"){
-        loadTrades();
-    }
+    document.getElementById(
+        "logoutBtn"
+    ).style.display =
+        "block";
+
+
+    await loadTrades();
+
 }
 
+
+/* =========================================
+   LOGOUT
+========================================= */
 
 async function logout(){
 
     const { error } =
         await supabaseClient.auth.signOut();
 
+
     if(error){
-        console.error(error);
+
+        console.error(
+            "LOGOUT ERROR:",
+            error
+        );
+
+        alert(
+            "Logout nahi hua: " +
+            error.message
+        );
+
         return;
     }
 
-    document.getElementById("authMessage").innerText =
+
+    trades = [];
+
+
+    document.getElementById(
+        "authMessage"
+    ).innerText =
         "Logged out.";
 
-    document.getElementById("logoutBtn").style.display =
+
+    document.getElementById(
+        "logoutBtn"
+    ).style.display =
         "none";
+
+
+    displayTrades();
+
 }
 
-async function loadTrades(){
 
-    const {
-        data: { user },
-        error: userError
-    } = await supabaseClient.auth.getUser();
+/* =========================================
+   CALCULATE TRADE
+========================================= */
 
-    if(userError || !user){
+function calculateTrade(){
+
+    const entry =
+        Number(
+            document.getElementById("entry").value
+        );
+
+
+    const exit =
+        Number(
+            document.getElementById("exit").value
+        );
+
+
+    const quantity =
+        Number(
+            document.getElementById("quantity").value
+        );
+
+
+    const stopLoss =
+        Number(
+            document.getElementById("stopLoss").value
+        );
+
+
+    const target =
+        Number(
+            document.getElementById("target").value
+        );
+
+
+    const type =
+        document.getElementById("type").value;
+
+
+    if(
+        !entry ||
+        !exit ||
+        !quantity
+    ){
+
+        alert(
+            "Entry, Exit aur Quantity enter karo."
+        );
+
         return;
     }
 
-    const { data, error } = await supabaseClient
-        .from("trades")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("trade_date", { ascending: false });
+
+    let pnl;
+
+
+    if(type === "BUY"){
+
+        pnl =
+            (exit - entry) *
+            quantity;
+
+    }else{
+
+        pnl =
+            (entry - exit) *
+            quantity;
+
+    }
+
+
+    let risk = 0;
+    let reward = 0;
+
+
+    if(stopLoss && target){
+
+        if(type === "BUY"){
+
+            risk =
+                Math.abs(
+                    entry - stopLoss
+                );
+
+            reward =
+                Math.abs(
+                    target - entry
+                );
+
+        }else{
+
+            risk =
+                Math.abs(
+                    stopLoss - entry
+                );
+
+            reward =
+                Math.abs(
+                    entry - target
+                );
+
+        }
+
+    }
+
+
+    const rr =
+        risk > 0
+        ? reward / risk
+        : 0;
+
+
+    const pnlElement =
+        document.getElementById(
+            "calculatedPnL"
+        );
+
+
+    pnlElement.innerText =
+        "₹" + pnl.toFixed(2);
+
+
+    pnlElement.className =
+        pnl >= 0
+        ? "profit"
+        : "loss";
+
+
+    document.getElementById(
+        "calculatedRR"
+    ).innerText =
+        rr > 0
+        ? rr.toFixed(2) + " R"
+        : "N/A";
+
+
+    const resultElement =
+        document.getElementById(
+            "tradeResult"
+        );
+
+
+    if(pnl > 0){
+
+        resultElement.innerText =
+            "WIN 🟢";
+
+        resultElement.className =
+            "profit";
+
+    }else if(pnl < 0){
+
+        resultElement.innerText =
+            "LOSS 🔴";
+
+        resultElement.className =
+            "loss";
+
+    }else{
+
+        resultElement.innerText =
+            "BREAK EVEN";
+
+        resultElement.className =
+            "";
+
+    }
+
+
+    document.getElementById(
+        "result"
+    ).style.display =
+        "block";
+
+}
+
+
+/* =========================================
+   SAVE / UPDATE TRADE
+========================================= */
+
+async function saveTrade(){
+
+    const date =
+        document.getElementById("date").value;
+
+
+    const symbol =
+        document.getElementById("symbol")
+        .value
+        .trim();
+
+
+    const type =
+        document.getElementById("type").value;
+
+
+    const entry =
+        Number(
+            document.getElementById("entry").value
+        );
+
+
+    const exit =
+        Number(
+            document.getElementById("exit").value
+        );
+
+
+    const quantity =
+        Number(
+            document.getElementById("quantity").value
+        );
+
+
+    const stopLoss =
+        Number(
+            document.getElementById("stopLoss").value
+        );
+
+
+    const target =
+        Number(
+            document.getElementById("target").value
+        );
+
+
+    const strategy =
+        document.getElementById("strategy")
+        .value
+        .trim();
+
+
+    if(
+        !date ||
+        !symbol ||
+        !entry ||
+        !exit ||
+        !quantity
+    ){
+
+        alert(
+            "Date, Symbol, Entry, Exit aur Quantity bharna zaroori hai."
+        );
+
+        return;
+    }
+
+
+    let pnl;
+
+
+    if(type === "BUY"){
+
+        pnl =
+            (exit - entry) *
+            quantity;
+
+    }else{
+
+        pnl =
+            (entry - exit) *
+            quantity;
+
+    }
+
+
+    let risk = 0;
+    let reward = 0;
+
+
+    if(stopLoss && target){
+
+        if(type === "BUY"){
+
+            risk =
+                Math.abs(
+                    entry - stopLoss
+                );
+
+            reward =
+                Math.abs(
+                    target - entry
+                );
+
+        }else{
+
+            risk =
+                Math.abs(
+                    stopLoss - entry
+                );
+
+            reward =
+                Math.abs(
+                    entry - target
+                );
+
+        }
+
+    }
+
+
+    const rr =
+        risk > 0
+        ? reward / risk
+        : null;
+
+
+    const {
+        data:{user},
+        error:userError
+    } =
+        await supabaseClient.auth.getUser();
+
+
+    if(userError || !user){
+
+        alert(
+            "Pehle Login karna hoga."
+        );
+
+        return;
+    }
+
+
+    const tradeData = {
+
+        trade_date:date,
+
+        symbol:symbol,
+
+        trade_type:type,
+
+        entry_price:entry,
+
+        exit_price:exit,
+
+        quantity:quantity,
+
+        stop_loss:
+            stopLoss || null,
+
+        target:
+            target || null,
+
+        pnl:pnl,
+
+        risk_reward:rr,
+
+        strategy:
+            strategy || null
+
+    };
+
+
+    let error;
+
+
+    /* EDIT MODE */
+
+    if(window.editingTradeId){
+
+        const result =
+            await supabaseClient
+            .from("trades")
+            .update(tradeData)
+            .eq(
+                "id",
+                window.editingTradeId
+            )
+            .eq(
+                "user_id",
+                user.id
+            );
+
+
+        error =
+            result.error;
+
+
+        if(!error){
+
+            alert(
+                "Trade successfully update ho gaya! ✅"
+            );
+
+        }
+
+
+        window.editingTradeId =
+            null;
+
+
+    }else{
+
+        /* NEW TRADE */
+
+        const result =
+            await supabaseClient
+            .from("trades")
+            .insert([
+
+                {
+                    user_id:user.id,
+                    ...tradeData
+                }
+
+            ]);
+
+
+        error =
+            result.error;
+
+
+        if(!error){
+
+            alert(
+                "Trade cloud database mein save ho gaya! ☁️✅"
+            );
+
+        }
+
+    }
+
 
     if(error){
 
-        console.error(error);
+        console.error(
+            "SAVE ERROR:",
+            error
+        );
 
-        alert("Trades load nahi ho paaye: " + error.message);
+        alert(
+            "Trade save/update nahi hua: " +
+            error.message
+        );
 
         return;
     }
 
-    // Supabase data ko website ke format mein convert karna
-    trades = data.map(trade => ({
-        id: trade.id,
-        date: trade.trade_date,
-        symbol: trade.symbol,
-        type: trade.trade_type,
-        entry: Number(trade.entry_price),
-        exit: Number(trade.exit_price),
-        quantity: Number(trade.quantity),
-        stopLoss: trade.stop_loss ? Number(trade.stop_loss) : 0,
-        target: trade.target ? Number(trade.target) : 0,
-        pnl: Number(trade.pnl),
-        rr: trade.risk_reward ? Number(trade.risk_reward) : 0,
-        strategy: trade.strategy || ""
-    }));
 
-displayTrades();
-updateStats();
+    clearForm();
 
-setTimeout(() => {
-    updateEquityCurve();
-    updateWinLossAnalysis();
-}, 100);
+    await loadTrades();
+
 }
-function updateEquityCurve(){
 
-    const chart = document.getElementById("equityChart");
 
-    if(!chart){
-        console.log("equityChart nahi mila");
+/* =========================================
+   CLEAR FORM
+========================================= */
+
+function clearForm(){
+
+    document.getElementById(
+        "date"
+    ).value = "";
+
+
+    document.getElementById(
+        "symbol"
+    ).value = "";
+
+
+    document.getElementById(
+        "entry"
+    ).value = "";
+
+
+    document.getElementById(
+        "exit"
+    ).value = "";
+
+
+    document.getElementById(
+        "quantity"
+    ).value = "";
+
+
+    document.getElementById(
+        "stopLoss"
+    ).value = "";
+
+
+    document.getElementById(
+        "target"
+    ).value = "";
+
+
+    document.getElementById(
+        "strategy"
+    ).value = "";
+
+
+    document.getElementById(
+        "result"
+    ).style.display =
+        "none";
+
+}
+
+
+/* =========================================
+   EDIT TRADE
+========================================= */
+
+function editTrade(index){
+
+    const trade =
+        trades[index];
+
+
+    if(!trade){
+
+        alert(
+            "Trade nahi mila."
+        );
+
         return;
     }
 
-    if(!trades || trades.length === 0){
-        chart.innerHTML = `
-            <div style="color:white;text-align:center;padding:80px 10px;">
-                Equity Curve ke liye trades add karein
-            </div>
-        `;
-        return;
-    }
 
-    let equity = 0;
-    let points = [0];
-
-    trades
-        .slice()
-        .sort((a,b) => new Date(a.date) - new Date(b.date))
-        .forEach(trade => {
-            equity += Number(trade.pnl) || 0;
-            points.push(equity);
-        });
-
-    const width = 900;
-    const height = 250;
-    const padding = 40;
-
-    const max = Math.max(...points);
-    const min = Math.min(...points);
-    const range = max - min || 1;
-
-    let path = "";
-    let circles = "";
-
-    points.forEach((value,index) => {
-
-        const x =
-            padding +
-            index / (points.length - 1) *
-            (width - padding * 2);
-
-        const y =
-            height - padding -
-            ((value - min) / range) *
-            (height - padding * 2);
-
-        if(index === 0){
-            path += `M ${x} ${y}`;
-        }else{
-            path += ` L ${x} ${y}`;
-        }
-
-        circles += `
-            <circle cx="${x}" cy="${y}" r="5" fill="#00ff88"/>
-            <text x="${x}" y="${y-12}"
-                  fill="white"
-                  text-anchor="middle"
-                  font-size="13">
-                ₹${value.toFixed(0)}
-            </text>
-        `;
-    });
-
-    chart.innerHTML = `
-        <svg
-            viewBox="0 0 ${width} ${height}"
-            width="100%"
-            height="250">
-
-            <path
-                d="${path}"
-                fill="none"
-                stroke="#00ff88"
-                stroke-width="4"/>
-
-            ${circles}
-
-        </svg>
-    `;
-}
+    document.getElementById(
+        "date"
+    ).value =
+        trade.date || "";
 
 
-function updateWinLossAnalysis(){
-
-    console.log("TRADES FOR ANALYSIS:", trades);
-    const wins = trades.filter(
-        trade => Number(trade.pnl) > 0
-    );
-
-    const losses = trades.filter(
-        trade => Number(trade.pnl) < 0
-    );
-
-    const totalProfit = wins.reduce(
-        (sum, trade) => sum + Number(trade.pnl),
-        0
-    );
-
-    const totalLoss = losses.reduce(
-        (sum, trade) => sum + Number(trade.pnl),
-        0
-    );
-
-    const averageWin =
-        wins.length > 0
-        ? totalProfit / wins.length
-        : 0;
-
-    const averageLoss =
-        losses.length > 0
-        ? totalLoss / losses.length
-        : 0;
-
-    const bestTrade =
-        trades.length > 0
-        ? Math.max(...trades.map(
-            trade => Number(trade.pnl)
-        ))
-        : 0;
-
-    const worstTrade =
-        trades.length > 0
-        ? Math.min(...trades.map(
-            trade => Number(trade.pnl)
-        ))
-        : 0;
-
-    document.getElementById("totalProfit").textContent =
-        "₹" + totalProfit.toFixed(2);
-
-    document.getElementById("totalLoss").textContent =
-        "₹" + totalLoss.toFixed(2);
-
-    document.getElementById("averageWin").textContent =
-        "₹" + averageWin.toFixed(2);
-
-    document.getElementById("averageLoss").textContent =
-        "₹" + averageLoss.toFixed(2);
-
-    document.getElementById("bestTrade").textContent =
-        "₹" + bestTrade.toFixed(2);
-
-    document.getElementById("worstTrade").textContent =
-        "₹" + worstTrade.toFixed(2);
-}
+    document.getElementById(
+        "symbol"
+    ).value =
+        trade.symbol || "";
 
 
-async function checkLogin(){
-
-    const {
-        data: { user }
-    } = await supabaseClient.auth.getUser();
-
-    if(user){
-
-        document.getElementById("authMessage").innerText =
-            "Logged in: " + user.email;
-
-        document.getElementById("logoutBtn").style.display =
-            "block";
-
-        loadTrades();
-    }
-}
+    document.getElementById(
+        "type"
+    ).value =
+        trade.type || "BUY";
 
 
-checkLogin();
+    document.getElementById(
+        "entry"
+    ).value =
+        trade.entry || "";
+
+
+    document.getElementById(
+        "exit"
+    ).value =
+        trade.exit || "";
+
+
+    document.getElementById(
+        "quantity"
+    ).value =
+        trade.quantity || "";
+
+
+    document.getElementById(
+        "stopLoss"
+    ).value =
+        trade.stopLoss || "";
+
+
+    document.getElementById(
+        "target"
+    ).value =
+        trade.target || "";
+
+
+    document.getElementById(
+        "strategy"
+    ).value =
+        trade.strategy || "";
+
+
+    window.editingTradeId =
+        trade.id;
+
+
+    window.scrollTo({
+
+        top:0,
