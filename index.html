@@ -12,14 +12,27 @@
     
     <script>
         // TODO: PASTE YOUR FIREBASE CONFIG HERE
-        const firebaseConfig = {
-            apiKey: "AIzaSy...", 
-            authDomain: "your-app.firebaseapp.com",
-            projectId: "your-app",
-            storageBucket: "your-app.appspot.com",
-            messagingSenderId: "...",
-            appId: "..."
-        };
+       // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAdux8Hz9o317fjdRdlw8rMmgajA6Hp2fU",
+  authDomain: "trading-3455b.firebaseapp.com",
+  projectId: "trading-3455b",
+  storageBucket: "trading-3455b.firebasestorage.app",
+  messagingSenderId: "832036590851",
+  appId: "1:832036590851:web:bde260c7a0800f424cc536",
+  measurementId: "G-QGE3RPH4L7"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
