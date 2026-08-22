@@ -2,483 +2,161 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaJournal - Professional Trading Journal</title>
-    <!-- Tailwind CSS CDN -->
+    <title>AlphaJournal PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
-        .glass-panel { background: rgba(22, 27, 34, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(48, 54, 62, 0.7); }
-    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // TODO: PASTE YOUR FIREBASE CONFIG HERE
+        const firebaseConfig = {
+            apiKey: "AIzaSy...", 
+            authDomain: "your-app.firebaseapp.com",
+            projectId: "your-app",
+            storageBucket: "your-app.appspot.com",
+            messagingSenderId: "...",
+            appId: "..."
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="bg-[#0d1117] text-white min-h-screen">
 
-    <!-- Header / Navbar -->
-    <header class="glass-panel sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-gray-800">
-        <div class="flex items-center gap-3">
-            <i class="fa-solid fa-chart-line text-emerald-400 text-2xl"></i>
-            <span class="text-xl font-bold text-white tracking-wide">Alpha<span class="text-emerald-400">Journal</span></span>
-        </div>
-        <div class="flex items-center gap-4">
-            <span id="userGreeting" class="text-sm font-medium text-gray-400 hidden">Logged in as: <span id="emailDisplay" class="text-emerald-400 font-semibold"></span></span>
-            <button id="authBtn" class="px-4 py-2 text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-black rounded-lg transition shadow-lg shadow-emerald-500/20">Login / Signup</button>
-            <button id="logoutBtn" class="px-4 py-2 text-sm font-medium bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition hidden">Logout</button>
-        </div>
-    </header>
+    <!-- Auth Protected UI Wrapper -->
+    <div id="appContainer" class="hidden">
+        <header class="p-6 flex justify-between items-center border-b border-gray-800">
+            <h1 class="text-xl font-bold">Alpha<span class="text-emerald-400">Journal</span></h1>
+            <div class="flex items-center gap-4">
+                <span id="userEmail" class="text-sm text-gray-400"></span>
+                <button onclick="auth.signOut()" class="text-rose-400 text-sm">Logout</button>
+            </div>
+        </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
-
-        <!-- KPI Metrics Cards (In INR ₹) -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="glass-panel p-5 rounded-xl">
-                <div class="flex justify-between items-center text-gray-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                    <span>Total Net P&L</span>
-                    <i class="fa-solid fa-indian-rupee-sign text-gray-500 text-sm"></i>
+        <main class="max-w-6xl mx-auto p-6 space-y-6">
+            <!-- Weekly Analysis Section -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-gray-900 p-4 rounded-lg border border-gray-800">
+                    <p class="text-xs text-gray-500 uppercase">This Week P&L</p>
+                    <h2 id="weeklyPnl" class="text-xl font-bold text-emerald-400">₹0.00</h2>
                 </div>
-                <div id="kpiNetPnl" class="text-2xl font-bold text-white">₹0.00</div>
-                <span id="kpiPnlPct" class="text-xs text-gray-500 mt-1 block">0% Return</span>
-            </div>
-
-            <div class="glass-panel p-5 rounded-xl">
-                <div class="flex justify-between items-center text-gray-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                    <span>Win Rate</span>
-                    <i class="fa-solid fa-bullseye text-gray-500 text-sm"></i>
+                <div class="bg-gray-900 p-4 rounded-lg border border-gray-800">
+                    <p class="text-xs text-gray-500 uppercase">Win Rate</p>
+                    <h2 id="winRate" class="text-xl font-bold text-white">0%</h2>
                 </div>
-                <div id="kpiWinRate" class="text-2xl font-bold text-white">0.0%</div>
-                <span id="kpiWinLoss" class="text-xs text-gray-500 mt-1 block">0 W / 0 L</span>
-            </div>
-
-            <div class="glass-panel p-5 rounded-xl">
-                <div class="flex justify-between items-center text-gray-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                    <span>Profit Factor</span>
-                    <i class="fa-solid fa-scale-balanced text-gray-500 text-sm"></i>
+                <div class="bg-gray-900 p-4 rounded-lg border border-gray-800">
+                    <p class="text-xs text-gray-500 uppercase">Total Trades</p>
+                    <h2 id="totalTrades" class="text-xl font-bold text-white">0</h2>
                 </div>
-                <div id="kpiProfitFactor" class="text-2xl font-bold text-white">0.00</div>
-                <span class="text-xs text-gray-500 mt-1 block">Gross Win / Gross Loss</span>
-            </div>
+            </section>
 
-            <div class="glass-panel p-5 rounded-xl">
-                <div class="flex justify-between items-center text-gray-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                    <span>Total Trades</span>
-                    <i class="fa-solid fa-list-check text-gray-500 text-sm"></i>
-                </div>
-                <div id="kpiTotalTrades" class="text-2xl font-bold text-white">0</div>
-                <span id="kpiAvgTrade" class="text-xs text-gray-500 mt-1 block">Avg: ₹0.00</span>
-            </div>
-        </section>
-
-        <!-- Chart Section -->
-        <section class="glass-panel p-6 rounded-xl">
-            <h2 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> Cumulative Equity Curve (₹)
-            </h2>
-            <div class="h-64 relative">
-                <canvas id="equityChart"></canvas>
-            </div>
-        </section>
-
-        <!-- Form & Table Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Trade Entry Form -->
-            <section class="glass-panel p-6 rounded-xl lg:col-span-1">
-                <h2 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-plus-circle text-emerald-400"></i> Log New Trade
-                </h2>
-                <form id="tradeForm" class="space-y-4">
-                    <div>
-                        <label class="text-xs font-medium text-gray-400 block mb-1">Symbol / Ticker</label>
-                        <input type="text" id="tradeSymbol" placeholder="e.g. NIFTY, BANKNIFTY, RELIANCE" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 uppercase">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Entry Form -->
+                <form id="tradeForm" class="bg-gray-900 p-6 rounded-xl border border-gray-800 space-y-4">
+                    <h3 class="font-bold">Log New Trade</h3>
+                    <input type="text" id="symbol" placeholder="Symbol (e.g. NIFTY)" required class="w-full bg-black border border-gray-700 p-2 rounded text-sm">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="entry" placeholder="Entry Price" required class="w-full bg-black border border-gray-700 p-2 rounded text-sm">
+                        <input type="number" id="exit" placeholder="Exit Price" required class="w-full bg-black border border-gray-700 p-2 rounded text-sm">
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Side</label>
-                            <select id="tradeType" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                                <option value="LONG">Long (Buy)</option>
-                                <option value="SHORT">Short (Sell)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Quantity / Lots</label>
-                            <input type="number" step="any" id="tradeQty" placeholder="50" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Entry Price (₹)</label>
-                            <input type="number" step="any" id="tradeEntry" placeholder="2450.00" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                        </div>
-                        <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Exit Price (₹)</label>
-                            <input type="number" step="any" id="tradeExit" placeholder="2500.00" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-xs font-medium text-gray-400 block mb-1">Setup / Strategy</label>
-                        <input type="text" id="tradeSetup" placeholder="e.g. Support Bounce, Breakout" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <button type="submit" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg text-sm transition">Record Trade</button>
+                    <select id="type" class="w-full bg-black border border-gray-700 p-2 rounded text-sm">
+                        <option value="LONG">Long</option>
+                        <option value="SHORT">Short</option>
+                    </select>
+                    <button class="w-full bg-emerald-600 p-2 rounded text-sm font-bold">Save Trade</button>
                 </form>
-            </section>
 
-            <!-- Trade History -->
-            <section class="glass-panel p-6 rounded-xl lg:col-span-2 flex flex-col">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base font-semibold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Trade History
-                    </h2>
-                    <button id="clearTradesBtn" class="text-xs text-gray-500 hover:text-rose-400 transition">Clear All</button>
-                </div>
-                <div class="flex-1 overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
-                        <thead>
-                            <tr class="border-b border-gray-800 text-gray-400 text-xs uppercase">
-                                <th class="pb-3">Symbol</th>
-                                <th class="pb-3">Type</th>
-                                <th class="pb-3">Entry &rarr; Exit (₹)</th>
-                                <th class="pb-3">P&L (₹)</th>
-                                <th class="pb-3">Return</th>
-                                <th class="pb-3 text-right">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tradesTableBody" class="divide-y divide-gray-800/40"></tbody>
+                <!-- History -->
+                <div class="lg:col-span-2 bg-gray-900 p-6 rounded-xl border border-gray-800">
+                    <table class="w-full text-left text-sm">
+                        <thead><tr class="text-gray-500"><th>Symbol</th><th>P&L (₹)</th><th>Date</th></tr></thead>
+                        <tbody id="tradeHistory"></tbody>
                     </table>
-                    <div id="emptyState" class="py-12 text-center text-gray-500 text-sm hidden">
-                        No trades logged yet. Fill out the form to begin tracking.
-                    </div>
                 </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Email Auth Modal with Verification Simulation -->
-    <div id="authModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="glass-panel max-w-sm w-full p-6 rounded-2xl border border-gray-700 shadow-2xl relative">
-            <button id="closeAuthBtn" class="absolute top-4 right-4 text-gray-400 hover:text-white">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            
-            <div class="text-center mb-6">
-                <h3 class="text-xl font-bold text-white mb-1" id="authModalTitle">Secure Account Access</h3>
-                <p class="text-xs text-gray-400" id="authModalDesc">Enter your professional email to proceed</p>
             </div>
+        </main>
+    </div>
 
-            <form id="authForm" class="space-y-4">
-                <div>
-                    <label class="text-xs font-medium text-gray-400 block mb-1">Email Address</label>
-                    <input type="email" id="authEmail" placeholder="trader@example.com" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                </div>
-                <div id="passwordGroup">
-                    <label class="text-xs font-medium text-gray-400 block mb-1">Password</label>
-                    <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                </div>
-                
-                <!-- Verification Code Section (Hidden by default during signup trigger) -->
-                <div id="otpGroup" class="hidden space-y-2">
-                    <label class="text-xs font-medium text-emerald-400 block">Enter 4-Digit Verification Code (Simulated)</label>
-                    <div class="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-center text-xs text-emerald-300 mb-2">
-                        Verification code sent to your email! (Demo code is: <b id="demoOtpCode">1234</b>)
-                    </div>
-                    <input type="text" id="otpInput" maxlength="4" placeholder="1234" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-center tracking-widest text-lg font-bold text-white focus:outline-none focus:border-emerald-500">
-                </div>
-
-                <button type="submit" id="authSubmitBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg text-sm transition">Continue</button>
-            </form>
-
-            <div class="text-center mt-4">
-                <button id="authToggleBtn" type="button" class="text-xs text-emerald-400 hover:underline">Don't have an account? Sign Up</button>
-            </div>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center bg-[#0d1117]">
+        <div class="w-96 p-8 bg-gray-900 rounded-xl border border-gray-800">
+            <h2 class="text-2xl font-bold mb-6">Login to Journal</h2>
+            <input type="email" id="email" placeholder="Email" class="w-full bg-black p-2 mb-4 rounded border border-gray-700">
+            <input type="password" id="pass" placeholder="Password" class="w-full bg-black p-2 mb-6 rounded border border-gray-700">
+            <button onclick="handleAuth()" class="w-full bg-emerald-600 p-2 rounded font-bold">Login / Sign Up</button>
         </div>
     </div>
 
-    <!-- JavaScript Engine -->
     <script>
-        let trades = JSON.parse(localStorage.getItem('alpha_trades_inr')) || [];
-        let currentUser = localStorage.getItem('alpha_user_email') || null;
-        let isSignup = false;
-        let verificationStep = false;
-        let generatedOtp = '';
-        let chartInstance = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initAuthUI();
-            initChart();
-            renderDashboard();
-            attachEventListeners();
+        // Authentication State
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('appContainer').classList.remove('hidden');
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('userEmail').innerText = user.email;
+                loadTrades(user.uid);
+            } else {
+                document.getElementById('appContainer').classList.add('hidden');
+                document.getElementById('loginScreen').classList.remove('hidden');
+            }
         });
 
-        window.deleteTrade = function(id) {
-            trades = trades.filter(t => t.id !== id);
-            saveAndRender();
-        };
-
-        function attachEventListeners() {
-            document.getElementById('authBtn').addEventListener('click', () => {
-                resetAuthModal();
-                document.getElementById('authModal').classList.remove('hidden');
-            });
-
-            document.getElementById('closeAuthBtn').addEventListener('click', () => {
-                document.getElementById('authModal').classList.add('hidden');
-            });
-
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                currentUser = null;
-                localStorage.removeItem('alpha_user_email');
-                initAuthUI();
-            });
-
-            document.getElementById('authToggleBtn').addEventListener('click', () => {
-                isSignup = !isSignup;
-                resetAuthModal();
-            });
-
-            document.getElementById('authForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = document.getElementById('authEmail').value.trim();
-                const password = document.getElementById('authPassword').value;
-
-                if (!email) return;
-
-                // Basic Email Regex Validation
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    alert('Please enter a valid email address.');
-                    return;
-                }
-
-                if (isSignup && !verificationStep) {
-                    // Step 1 of Signup: Generate and prompt verification code
-                    generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
-                    document.getElementById('demoOtpCode').innerText = generatedOtp;
-                    
-                    document.getElementById('passwordGroup').classList.add('hidden');
-                    document.getElementById('otpGroup').classList.remove('hidden');
-                    document.getElementById('authSubmitBtn').innerText = 'Verify & Register';
-                    verificationStep = true;
-                    return;
-                }
-
-                if (isSignup && verificationStep) {
-                    // Step 2 of Signup: Verify Code
-                    const enteredOtp = document.getElementById('otpInput').value.trim();
-                    if (enteredOtp !== generatedOtp) {
-                        alert('Invalid verification code. Please check the demo code displayed above.');
-                        return;
-                    }
-                }
-
-                // Authentication Success
-                currentUser = email;
-                localStorage.setItem('alpha_user_email', currentUser);
-                initAuthUI();
-                document.getElementById('authModal').classList.add('hidden');
-                alert(isSignup ? 'Account verified and registered successfully!' : 'Logged in successfully!');
-            });
-
-            // Trade Submission Form
-            document.getElementById('tradeForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const symbol = document.getElementById('tradeSymbol').value.toUpperCase().trim();
-                const type = document.getElementById('tradeType').value;
-                const qty = parseFloat(document.getElementById('tradeQty').value);
-                const entry = parseFloat(document.getElementById('tradeEntry').value);
-                const exit = parseFloat(document.getElementById('tradeExit').value);
-                const setup = document.getElementById('tradeSetup').value;
-
-                if (isNaN(qty) || isNaN(entry) || isNaN(exit)) return;
-
-                const pnl = type === 'LONG' ? (exit - entry) * qty : (entry - exit) * qty;
-                const pnlPct = type === 'LONG' ? ((exit - entry) / entry) * 100 : ((entry - exit) / entry) * 100;
-
-                const newTrade = {
-                    id: Date.now(),
-                    date: new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
-                    symbol, type, qty, entry, exit, setup, pnl, pnlPct
-                };
-
-                trades.unshift(newTrade);
-                saveAndRender();
-                document.getElementById('tradeForm').reset();
-            });
-
-            document.getElementById('clearTradesBtn').addEventListener('click', () => {
-                if (trades.length > 0 && confirm('Are you sure you want to clear all logged trades?')) {
-                    trades = [];
-                    saveAndRender();
-                }
-            });
-        }
-
-        function resetAuthModal() {
-            verificationStep = false;
-            document.getElementById('passwordGroup').classList.remove('hidden');
-            document.getElementById('otpGroup').classList.add('hidden');
-            document.getElementById('authEmail').value = '';
-            document.getElementById('authPassword').value = '';
-            document.getElementById('otpInput').value = '';
-
-            if (isSignup) {
-                document.getElementById('authModalTitle').innerText = 'Create Account';
-                document.getElementById('authModalDesc').innerText = 'Register with email & verification';
-                document.getElementById('authSubmitBtn').innerText = 'Send Verification Code';
-                document.getElementById('authToggleBtn').innerText = 'Already have an account? Sign In';
-            } else {
-                document.getElementById('authModalTitle').innerText = 'Welcome Back';
-                document.getElementById('authModalDesc').innerText = 'Enter your email and password to log in';
-                document.getElementById('authSubmitBtn').innerText = 'Sign In';
-                document.getElementById('authToggleBtn').innerText = "Don't have an account? Sign Up";
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+            } catch (e) {
+                await auth.createUserWithEmailAndPassword(email, pass);
             }
         }
 
-        function initAuthUI() {
-            const userGreeting = document.getElementById('userGreeting');
-            const emailDisplay = document.getElementById('emailDisplay');
-            const authBtn = document.getElementById('authBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
+        // Firestore Logic
+        document.getElementById('tradeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const uid = auth.currentUser.uid;
+            const trade = {
+                uid: uid,
+                symbol: document.getElementById('symbol').value,
+                pnl: parseFloat(document.getElementById('exit').value) - parseFloat(document.getElementById('entry').value),
+                date: new Date()
+            };
+            await db.collection('trades').add(trade);
+            e.target.reset();
+        });
 
-            if (currentUser) {
-                userGreeting.classList.remove('hidden');
-                emailDisplay.innerText = currentUser;
-                authBtn.classList.add('hidden');
-                logoutBtn.classList.remove('hidden');
-            } else {
-                userGreeting.classList.add('hidden');
-                authBtn.classList.remove('hidden');
-                logoutBtn.classList.add('hidden');
-            }
-        }
-
-        function saveAndRender() {
-            localStorage.setItem('alpha_trades_inr', JSON.stringify(trades));
-            renderDashboard();
-        }
-
-        function renderDashboard() {
-            renderTable();
-            calculateKPIs();
-            updateChart();
-        }
-
-        function calculateKPIs() {
-            if (trades.length === 0) {
-                document.getElementById('kpiNetPnl').innerText = '₹0.00';
-                document.getElementById('kpiPnlPct').innerText = '0% Return';
-                document.getElementById('kpiWinRate').innerText = '0.0%';
-                document.getElementById('kpiWinLoss').innerText = '0 W / 0 L';
-                document.getElementById('kpiProfitFactor').innerText = '0.00';
-                document.getElementById('kpiTotalTrades').innerText = '0';
-                document.getElementById('kpiAvgTrade').innerText = 'Avg: ₹0.00';
-                return;
-            }
-
-            let totalPnl = 0, wins = 0, losses = 0, grossWin = 0, grossLoss = 0;
-
-            trades.forEach(t => {
-                totalPnl += t.pnl;
-                if (t.pnl > 0) {
-                    wins++;
-                    grossWin += t.pnl;
-                } else if (t.pnl < 0) {
-                    losses++;
-                    grossLoss += Math.abs(t.pnl);
-                }
+        function loadTrades(uid) {
+            db.collection('trades').where('uid', '==', uid).onSnapshot(snapshot => {
+                let trades = [];
+                snapshot.forEach(doc => trades.push(doc.data()));
+                render(trades);
             });
-
-            const winRate = ((wins / trades.length) * 100).toFixed(1);
-            const profitFactor = grossLoss === 0 ? grossWin.toFixed(2) : (grossWin / grossLoss).toFixed(2);
-            const avgPnl = (totalPnl / trades.length).toFixed(2);
-
-            const pnlElem = document.getElementById('kpiNetPnl');
-            pnlElem.innerText = `${totalPnl >= 0 ? '+' : ''}₹${totalPnl.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            pnlElem.className = `text-2xl font-bold ${totalPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-            document.getElementById('kpiWinRate').innerText = `${winRate}%`;
-            document.getElementById('kpiWinLoss').innerText = `${wins} W / ${losses} L`;
-            document.getElementById('kpiProfitFactor').innerText = profitFactor;
-            document.getElementById('kpiTotalTrades').innerText = trades.length;
-            document.getElementById('kpiAvgTrade').innerText = `Avg: ₹${parseFloat(avgPnl).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('tradesTableBody');
-            const emptyState = document.getElementById('emptyState');
+        function render(trades) {
+            const tbody = document.getElementById('tradeHistory');
             tbody.innerHTML = '';
-
-            if (trades.length === 0) {
-                emptyState.classList.remove('hidden');
-                return;
-            }
-            emptyState.classList.add('hidden');
-
-            trades.forEach(t => {
-                const tr = document.createElement('tr');
-                const isProfitable = t.pnl >= 0;
-                tr.className = 'hover:bg-gray-800/30 transition-colors';
-                tr.innerHTML = `
-                    <td class="py-3 font-semibold text-white">${t.symbol} <span class="text-xs text-gray-500 font-normal block">${t.date}</span></td>
-                    <td class="py-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${t.type === 'LONG' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}">${t.type}</span></td>
-                    <td class="py-3 text-gray-300">₹${t.entry.toLocaleString('en-IN')} &rarr; ₹${t.exit.toLocaleString('en-IN')}</td>
-                    <td class="py-3 font-semibold ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}">${isProfitable ? '+' : ''}₹${t.pnl.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td class="py-3 text-xs ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}">${isProfitable ? '+' : ''}${t.pnlPct.toFixed(2)}%</td>
-                    <td class="py-3 text-right">
-                        <button onclick="deleteTrade(${t.id})" class="text-gray-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
-                    </td>
+            let totalPnl = 0, wins = 0;
+            
+            trades.sort((a,b) => b.date - a.date).forEach(t => {
+                totalPnl += t.pnl;
+                if(t.pnl > 0) wins++;
+                tbody.innerHTML += `
+                    <tr class="border-b border-gray-800">
+                        <td class="py-3">${t.symbol}</td>
+                        <td class="${t.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">₹${t.pnl.toFixed(2)}</td>
+                        <td class="text-gray-500">${t.date.toDate().toLocaleDateString()}</td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
             });
-        }
-
-        function initChart() {
-            const ctx = document.getElementById('equityChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Cumulative Equity (₹)',
-                        data: [],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { grid: { color: 'rgba(48, 54, 62, 0.4)' }, ticks: { color: '#8b949e' } },
-                        y: { grid: { color: 'rgba(48, 54, 62, 0.4)' }, ticks: { color: '#8b949e' } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        function updateChart() {
-            if (!chartInstance) return;
-            const chronological = [...trades].reverse();
-            let total = 0;
-            const labels = ['Start'];
-            const data = [0];
-
-            chronological.forEach((t, i) => {
-                total += t.pnl;
-                labels.push(`#${i + 1} ${t.symbol}`);
-                data.push(total);
-            });
-
-            chartInstance.data.labels = labels;
-            chartInstance.data.datasets[0].data = data;
-            chartInstance.update();
+            
+            document.getElementById('weeklyPnl').innerText = `₹${totalPnl.toFixed(2)}`;
+            document.getElementById('totalTrades').innerText = trades.length;
+            document.getElementById('winRate').innerText = trades.length ? ((wins/trades.length)*100).toFixed(1) + '%' : '0%';
         }
     </script>
 </body>
