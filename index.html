@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaJournal PRO</title>
+    <title>AlphaJournal PRO - Advanced Trading Terminal</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK (Compat Version) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -28,177 +30,214 @@
         const db = firebase.firestore();
     </script>
     <style>
-        body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; }
-        .glass-panel { background: rgba(22, 27, 34, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(48, 54, 62, 0.7); }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0e14; color: #cbd5e1; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-panel { background: rgba(18, 24, 38, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.07); }
+        .glass-panel:hover { border-color: rgba(16, 185, 129, 0.2); }
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0b0e14; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-black">
 
-    <!-- Header / Navbar -->
-    <header class="glass-panel sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-gray-800">
+    <!-- Header Navigation -->
+    <header class="glass-panel sticky top-0 z-40 px-6 py-3.5 flex justify-between items-center border-b border-slate-800/80">
         <div class="flex items-center gap-3">
-            <i class="fa-solid fa-chart-line text-emerald-400 text-2xl"></i>
-            <span class="text-xl font-bold text-white tracking-wide">Alpha<span class="text-emerald-400">Journal</span></span>
+            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                <i class="fa-solid fa-bolt text-emerald-400 text-base"></i>
+            </div>
+            <div>
+                <span class="text-base font-bold text-white tracking-wide">ALPHA<span class="text-emerald-400">JOURNAL</span></span>
+                <span class="text-[10px] bg-slate-800 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono ml-2">PRO v2.0</span>
+            </div>
         </div>
         <div class="flex items-center gap-4">
-            <span id="userGreeting" class="text-sm font-medium text-gray-400 hidden">Logged in as: <span id="emailDisplay" class="text-emerald-400 font-semibold"></span></span>
-            <button id="logoutBtn" onclick="logoutUser()" class="px-4 py-2 text-sm font-medium bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition hidden">Logout</button>
+            <span id="userGreeting" class="text-xs text-slate-400 hidden">User: <span id="emailDisplay" class="text-emerald-400 font-mono font-medium"></span></span>
+            <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-file-excel text-emerald-400"></i> Export CSV
+            </button>
+            <button id="logoutBtn" onclick="logoutUser()" class="px-3 py-1.5 text-xs font-semibold bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition hidden">
+                <i class="fa-solid fa-power-off mr-1"></i> Logout
+            </button>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+    <!-- Main Container -->
+    <main class="flex-1 max-w-[1440px] w-full mx-auto p-5 md:p-6 space-y-6">
 
-        <!-- KPI Metrics Cards (In INR ₹) -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="glass-panel p-5 rounded-xl">
-                <div class="flex justify-between items-center text-gray-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                    <span>Total Net P&L</span>
-                    <i class="fa-solid fa-indian-rupee-sign text-gray-500 text-sm"></i>
-                </div>
-                <div id="kpiNetPnl" class="text-2xl font-bold text-white">₹0.00</div>
-                <span id="kpiPnlPct" class="text-xs text-gray-500 mt-1 block">0% Return</span>
+        <!-- Top KPI Grid -->
+        <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+            <div class="glass-panel p-4 rounded-xl relative overflow-hidden">
+                <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Net P&L</span>
+                <div id="kpiNetPnl" class="text-xl font-bold font-mono text-white mt-1">₹0.00</div>
+                <span id="kpiCharges" class="text-[10px] text-slate-500 block mt-0.5">Brokerage: ₹0</span>
             </div>
 
-            <div class="glass-panel p-5 rounded-xl">
-                <div class="flex justify-between items-center text-gray-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                    <span>Win Rate</span>
-                    <i class="fa-solid fa-bullseye text-gray-500 text-sm"></i>
-                </div>
-                <div id="kpiWinRate" class="text-2xl font-bold text-white">0.0%</div>
-                <span id="kpiWinLoss" class="text-xs text-gray-500 mt-1 block">0 W / 0 L</span>
+            <div class="glass-panel p-4 rounded-xl">
+                <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Win Rate</span>
+                <div id="kpiWinRate" class="text-xl font-bold font-mono text-white mt-1">0.0%</div>
+                <span id="kpiWinLoss" class="text-[10px] text-slate-500 block mt-0.5">0W / 0L</span>
             </div>
 
-            <div class="glass-panel p-5 rounded-xl">
-                <div class="flex justify-between items-center text-gray-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                    <span>Profit Factor</span>
-                    <i class="fa-solid fa-scale-balanced text-gray-500 text-sm"></i>
-                </div>
-                <div id="kpiProfitFactor" class="text-2xl font-bold text-white">0.00</div>
-                <span class="text-xs text-gray-500 mt-1 block">Gross Win / Gross Loss</span>
+            <div class="glass-panel p-4 rounded-xl">
+                <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Profit Factor</span>
+                <div id="kpiProfitFactor" class="text-xl font-bold font-mono text-white mt-1">0.00</div>
+                <span class="text-[10px] text-slate-500 block mt-0.5">Gross W/L Ratio</span>
             </div>
 
-            <div class="glass-panel p-5 rounded-xl">
-                <div class="flex justify-between items-center text-gray-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                    <span>Total Trades</span>
-                    <i class="fa-solid fa-list-check text-gray-500 text-sm"></i>
-                </div>
-                <div id="kpiTotalTrades" class="text-2xl font-bold text-white">0</div>
-                <span id="kpiAvgTrade" class="text-xs text-gray-500 mt-1 block">Avg: ₹0.00</span>
+            <div class="glass-panel p-4 rounded-xl">
+                <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Trades</span>
+                <div id="kpiTotalTrades" class="text-xl font-bold font-mono text-white mt-1">0</div>
+                <span id="kpiAvgTrade" class="text-[10px] text-slate-500 block mt-0.5">Avg: ₹0</span>
+            </div>
+
+            <div class="glass-panel p-4 rounded-xl">
+                <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Best Win</span>
+                <div id="kpiBestWin" class="text-xl font-bold font-mono text-emerald-400 mt-1">₹0.00</div>
+                <span id="kpiStreak" class="text-[10px] text-emerald-500 block mt-0.5">Streak: 0W</span>
+            </div>
+
+            <div class="glass-panel p-4 rounded-xl">
+                <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Worst Loss</span>
+                <div id="kpiWorstLoss" class="text-xl font-bold font-mono text-rose-400 mt-1">₹0.00</div>
+                <span class="text-[10px] text-slate-500 block mt-0.5">Max Drawdown</span>
             </div>
         </section>
 
         <!-- Chart Section -->
-        <section class="glass-panel p-6 rounded-xl">
-            <h2 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> Cumulative Equity Curve (₹)
-            </h2>
+        <section class="glass-panel p-5 rounded-xl">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-area text-emerald-400"></i> CUMULATIVE PERFORMANCE CURVE (₹)
+                </h2>
+                <span class="text-[11px] text-slate-500 font-mono">Real-time Net Equity</span>
+            </div>
             <div class="h-64 relative">
                 <canvas id="equityChart"></canvas>
             </div>
         </section>
 
-        <!-- Form & Table Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Dynamic Grid: Log Form + Live Table -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- Trade Entry Form -->
-            <section class="glass-panel p-6 rounded-xl lg:col-span-1">
-                <h2 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-plus-circle text-emerald-400"></i> Log New Trade
-                </h2>
-                <form id="tradeForm" onsubmit="handleTradeSubmit(event)" class="space-y-4">
+            <!-- Log / Edit Form -->
+            <section class="glass-panel p-5 rounded-xl lg:col-span-4 h-fit">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="formTitle" class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-emerald-400"></i> Log Trade Entry
+                    </h2>
+                    <button id="cancelEditBtn" onclick="resetTradeForm()" class="text-xs text-rose-400 hover:underline hidden">Cancel Edit</button>
+                </div>
+                <form id="tradeForm" onsubmit="handleTradeSubmit(event)" class="space-y-3.5">
+                    <input type="hidden" id="editTradeId" value="">
+                    
                     <div>
-                        <label class="text-xs font-medium text-gray-400 block mb-1">Symbol / Ticker</label>
-                        <input type="text" id="tradeSymbol" placeholder="e.g. NIFTY, RELIANCE" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 uppercase">
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-1">Symbol / Asset</label>
+                        <input type="text" id="tradeSymbol" placeholder="NIFTY, BANKNIFTY, RELIANCE" required class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500 uppercase">
                     </div>
+
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Side</label>
-                            <select id="tradeType" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                                <option value="LONG">Long (Buy)</option>
-                                <option value="SHORT">Short (Sell)</option>
+                            <label class="text-[11px] font-semibold text-slate-400 block mb-1">Side</label>
+                            <select id="tradeType" class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-emerald-500">
+                                <option value="LONG">BUY (Long)</option>
+                                <option value="SHORT">SELL (Short)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Quantity</label>
-                            <input type="number" step="any" id="tradeQty" placeholder="50" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <label class="text-[11px] font-semibold text-slate-400 block mb-1">Quantity / Lot</label>
+                            <input type="number" step="any" id="tradeQty" placeholder="50" required class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500">
                         </div>
                     </div>
+
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Entry Price (₹)</label>
-                            <input type="number" step="any" id="tradeEntry" placeholder="2450.00" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <label class="text-[11px] font-semibold text-slate-400 block mb-1">Entry Price (₹)</label>
+                            <input type="number" step="any" id="tradeEntry" placeholder="2400.00" required class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Exit Price (₹)</label>
-                            <input type="number" step="any" id="tradeExit" placeholder="2500.00" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <label class="text-[11px] font-semibold text-slate-400 block mb-1">Exit Price (₹)</label>
+                            <input type="number" step="any" id="tradeExit" placeholder="2450.00" required class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500">
                         </div>
                     </div>
-                    <div>
-                        <label class="text-xs font-medium text-gray-400 block mb-1">Setup / Strategy</label>
-                        <input type="text" id="tradeSetup" placeholder="e.g. Breakout" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[11px] font-semibold text-slate-400 block mb-1">Brokerage & Taxes (₹)</label>
+                            <input type="number" step="any" id="tradeCharges" placeholder="40" value="0" class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-semibold text-slate-400 block mb-1">Setup / Strategy</label>
+                            <input type="text" id="tradeSetup" placeholder="Breakout, Pullback" class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        </div>
                     </div>
-                    <button type="submit" id="saveBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg text-sm transition">Record Trade</button>
+
+                    <button type="submit" id="saveBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-bold rounded-lg text-xs tracking-wider uppercase transition shadow-lg shadow-emerald-500/10">Save Trade</button>
                 </form>
             </section>
 
-            <!-- Trade History -->
-            <section class="glass-panel p-6 rounded-xl lg:col-span-2 flex flex-col">
+            <!-- Trade History with Edit/Delete Actions -->
+            <section class="glass-panel p-5 rounded-xl lg:col-span-8 flex flex-col">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base font-semibold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Trade History
+                    <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-emerald-400"></i> Trade History Log
                     </h2>
+                    <span id="logCounter" class="text-[11px] font-mono text-slate-400">0 records</span>
                 </div>
-                <div class="flex-1 overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
+                <div class="flex-1 overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs border-collapse">
                         <thead>
-                            <tr class="border-b border-gray-800 text-gray-400 text-xs uppercase">
-                                <th class="pb-3">Symbol</th>
-                                <th class="pb-3">Type</th>
-                                <th class="pb-3">Entry &rarr; Exit (₹)</th>
-                                <th class="pb-3">P&L (₹)</th>
-                                <th class="pb-3 text-right">Action</th>
+                            <tr class="border-b border-slate-800 text-slate-400 uppercase font-semibold">
+                                <th class="pb-2.5">Symbol</th>
+                                <th class="pb-2.5">Side</th>
+                                <th class="pb-2.5">Entry &rarr; Exit (₹)</th>
+                                <th class="pb-2.5">Net P&L (₹)</th>
+                                <th class="pb-2.5">Setup</th>
+                                <th class="pb-2.5 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="tradesTableBody" class="divide-y divide-gray-800/40"></tbody>
+                        <tbody id="tradesTableBody" class="divide-y divide-slate-800/60 font-mono"></tbody>
                     </table>
-                    <div id="emptyState" class="py-12 text-center text-gray-500 text-sm hidden">
-                        No trades logged yet. Fill out the form to begin tracking.
+                    <div id="emptyState" class="py-16 text-center text-slate-500 text-xs hidden">
+                        No trade history registered. Fill out the terminal form to log your setups.
                     </div>
                 </div>
             </section>
         </div>
     </main>
 
-    <!-- Login / Signup Modal -->
+    <!-- Auth Modal -->
     <div id="authModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="glass-panel max-w-sm w-full p-8 rounded-2xl border border-gray-700 shadow-2xl relative text-center">
-            <h3 class="text-2xl font-bold text-white mb-1">Alpha<span class="text-emerald-400">Journal</span></h3>
-            <p class="text-xs text-gray-400 mb-6" id="authSubtitle">Login to access your trading data</p>
+        <div class="glass-panel max-w-sm w-full p-8 rounded-2xl border border-slate-700 shadow-2xl relative text-center">
+            <h3 class="text-xl font-bold text-white mb-1">ALPHA<span class="text-emerald-400">JOURNAL</span></h3>
+            <p class="text-xs text-slate-400 mb-6" id="authSubtitle">Login to access your trading data</p>
             
-            <div class="flex border-b border-gray-700 mb-5">
-                <button id="tabLogin" onclick="switchAuthTab('login')" class="flex-1 pb-2 text-sm font-semibold border-b-2 border-emerald-400 text-white">Login</button>
-                <button id="tabSignup" onclick="switchAuthTab('signup')" class="flex-1 pb-2 text-sm font-semibold border-b-2 border-transparent text-gray-400">Sign Up</button>
+            <div class="flex border-b border-slate-700 mb-5">
+                <button id="tabLogin" onclick="switchAuthTab('login')" class="flex-1 pb-2 text-xs font-bold border-b-2 border-emerald-400 text-white">LOGIN</button>
+                <button id="tabSignup" onclick="switchAuthTab('signup')" class="flex-1 pb-2 text-xs font-bold border-b-2 border-transparent text-slate-400">SIGN UP</button>
             </div>
 
             <form onsubmit="handleAuthSubmit(event)" class="space-y-4 text-left">
                 <div>
-                    <label class="text-xs font-medium text-gray-400 block mb-1">Email Address</label>
-                    <input type="email" id="authEmail" placeholder="name@example.com" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <label class="text-[11px] font-semibold text-slate-400 block mb-1">Email Address</label>
+                    <input type="email" id="authEmail" placeholder="trader@domain.com" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
                 </div>
                 <div>
-                    <label class="text-xs font-medium text-gray-400 block mb-1">Password</label>
-                    <input type="password" id="authPassword" placeholder="Min 6 characters" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <label class="text-[11px] font-semibold text-slate-400 block mb-1">Password</label>
+                    <input type="password" id="authPassword" placeholder="Min 6 characters" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
                 </div>
-                <button type="submit" id="authSubmitBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg text-sm transition shadow-lg">Login</button>
+                <button type="submit" id="authSubmitBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-bold rounded-lg text-xs uppercase tracking-wider transition shadow-lg">Login</button>
             </form>
         </div>
     </div>
 
-    <!-- JavaScript Engine -->
+    <!-- Application Script -->
     <script>
         let isSignupMode = false;
         let chartInstance = null;
+        let globalTrades = [];
 
         function switchAuthTab(mode) {
             isSignupMode = (mode === 'signup');
@@ -208,15 +247,15 @@
             const authSubtitle = document.getElementById('authSubtitle');
 
             if (isSignupMode) {
-                tabSignup.className = "flex-1 pb-2 text-sm font-semibold border-b-2 border-emerald-400 text-white";
-                tabLogin.className = "flex-1 pb-2 text-sm font-semibold border-b-2 border-transparent text-gray-400";
+                tabSignup.className = "flex-1 pb-2 text-xs font-bold border-b-2 border-emerald-400 text-white";
+                tabLogin.className = "flex-1 pb-2 text-xs font-bold border-b-2 border-transparent text-slate-400";
                 authBtn.innerText = "Create New Account";
-                authSubtitle.innerText = "Create an account to store trades on cloud";
+                authSubtitle.innerText = "Cloud Sync Registration";
             } else {
-                tabLogin.className = "flex-1 pb-2 text-sm font-semibold border-b-2 border-emerald-400 text-white";
-                tabSignup.className = "flex-1 pb-2 text-sm font-semibold border-b-2 border-transparent text-gray-400";
+                tabLogin.className = "flex-1 pb-2 text-xs font-bold border-b-2 border-emerald-400 text-white";
+                tabSignup.className = "flex-1 pb-2 text-xs font-bold border-b-2 border-transparent text-slate-400";
                 authBtn.innerText = "Login";
-                authSubtitle.innerText = "Login to access your trading data";
+                authSubtitle.innerText = "Terminal Authentication";
             }
         }
 
@@ -255,7 +294,6 @@
             try {
                 if (isSignupMode) {
                     await auth.createUserWithEmailAndPassword(email, password);
-                    alert("Account created and logged in successfully!");
                 } else {
                     await auth.signInWithEmailAndPassword(email, password);
                 }
@@ -271,39 +309,105 @@
             auth.signOut();
         }
 
+        // Add or Update Trade (With Charges/Brokerage Calculation)
         async function handleTradeSubmit(e) {
             e.preventDefault();
             const user = auth.currentUser;
             if (!user) return;
 
+            const editId = document.getElementById('editTradeId').value;
             const symbol = document.getElementById('tradeSymbol').value.toUpperCase().trim();
             const type = document.getElementById('tradeType').value;
             const qty = parseFloat(document.getElementById('tradeQty').value);
             const entry = parseFloat(document.getElementById('tradeEntry').value);
             const exit = parseFloat(document.getElementById('tradeExit').value);
-            const setup = document.getElementById('tradeSetup').value;
+            const charges = parseFloat(document.getElementById('tradeCharges').value) || 0;
+            const setup = document.getElementById('tradeSetup').value || 'Standard';
 
-            const pnl = type === 'LONG' ? (exit - entry) * qty : (entry - exit) * qty;
+            const grossPnl = type === 'LONG' ? (exit - entry) * qty : (entry - exit) * qty;
+            const netPnl = grossPnl - charges;
             const pnlPct = type === 'LONG' ? ((exit - entry) / entry) * 100 : ((entry - exit) / entry) * 100;
 
+            const tradeData = {
+                uid: user.uid,
+                symbol, type, qty, entry, exit, charges, setup,
+                grossPnl, netPnl, pnlPct,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
             try {
-                await db.collection('trades').add({
-                    uid: user.uid,
-                    symbol, type, qty, entry, exit, setup, pnl, pnlPct,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                document.getElementById('tradeForm').reset();
+                if (editId) {
+                    // Update existing
+                    await db.collection('trades').doc(editId).update(tradeData);
+                } else {
+                    // Create new
+                    tradeData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('trades').add(tradeData);
+                }
+                resetTradeForm();
             } catch (err) {
-                alert("Error saving trade: " + err.message);
+                alert("Database Error: " + err.message);
             }
+        }
+
+        // Populate Form for Editing
+        function editTrade(id) {
+            const trade = globalTrades.find(t => t.id === id);
+            if (!trade) return;
+
+            document.getElementById('editTradeId').value = trade.id;
+            document.getElementById('tradeSymbol').value = trade.symbol;
+            document.getElementById('tradeType').value = trade.type;
+            document.getElementById('tradeQty').value = trade.qty;
+            document.getElementById('tradeEntry').value = trade.entry;
+            document.getElementById('tradeExit').value = trade.exit;
+            document.getElementById('tradeCharges').value = trade.charges || 0;
+            document.getElementById('tradeSetup').value = trade.setup || '';
+
+            document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Trade Position';
+            document.getElementById('saveBtn').innerText = 'Update Trade';
+            document.getElementById('saveBtn').className = 'w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold rounded-lg text-xs tracking-wider uppercase transition shadow-lg';
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+        }
+
+        function resetTradeForm() {
+            document.getElementById('tradeForm').reset();
+            document.getElementById('editTradeId').value = '';
+            document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-plus-circle text-emerald-400"></i> Log Trade Entry';
+            document.getElementById('saveBtn').innerText = 'Save Trade';
+            document.getElementById('saveBtn').className = 'w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-bold rounded-lg text-xs tracking-wider uppercase transition shadow-lg shadow-emerald-500/10';
+            document.getElementById('cancelEditBtn').classList.add('hidden');
         }
 
         async function deleteTrade(docId) {
-            if (confirm("Delete this trade?")) {
+            if (confirm("Delete this trade record?")) {
                 await db.collection('trades').doc(docId).delete();
+                if (document.getElementById('editTradeId').value === docId) resetTradeForm();
             }
         }
 
+        // Export Data to CSV
+        function exportToCSV() {
+            if (globalTrades.length === 0) {
+                alert("No trade data available to export.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Symbol,Side,Quantity,Entry Price,Exit Price,Charges,Net PnL,PnL %,Setup\n";
+            globalTrades.forEach(t => {
+                csvContent += `"${t.symbol}","${t.type}",${t.qty},${t.entry},${t.exit},${t.charges || 0},${(t.netPnl || t.pnl).toFixed(2)},${t.pnlPct.toFixed(2)}%,"${t.setup || ''}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `trading_journal_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Firestore Realtime Listener
         function loadUserTrades(uid) {
             db.collection('trades')
               .where('uid', '==', uid)
@@ -313,14 +417,18 @@
                       trades.push({ id: doc.id, ...doc.data() });
                   });
                   trades.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                  globalTrades = trades;
                   renderDashboard(trades);
               });
         }
 
+        // Analytics & Dashboard Rendering
         function renderDashboard(trades) {
             const tbody = document.getElementById('tradesTableBody');
             const emptyState = document.getElementById('emptyState');
             tbody.innerHTML = '';
+
+            document.getElementById('logCounter').innerText = `${trades.length} records`;
 
             if (trades.length === 0) {
                 emptyState.classList.remove('hidden');
@@ -328,41 +436,86 @@
                 emptyState.classList.add('hidden');
             }
 
-            let totalPnl = 0, wins = 0, losses = 0, grossWin = 0, grossLoss = 0;
+            let totalNetPnl = 0, totalCharges = 0, wins = 0, losses = 0, grossWin = 0, grossLoss = 0;
+            let bestWin = 0, worstLoss = 0;
+            let currentStreak = 0;
 
-            trades.forEach(t => {
-                totalPnl += t.pnl;
-                if (t.pnl > 0) { wins++; grossWin += t.pnl; }
-                else if (t.pnl < 0) { losses++; grossLoss += Math.abs(t.pnl); }
+            trades.forEach((t, index) => {
+                const finalPnl = t.netPnl !== undefined ? t.netPnl : t.pnl;
+                const finalCharges = t.charges || 0;
 
+                totalNetPnl += finalPnl;
+                totalCharges += finalCharges;
+
+                if (finalPnl > 0) {
+                    wins++;
+                    grossWin += finalPnl;
+                    if (finalPnl > bestWin) bestWin = finalPnl;
+                } else if (finalPnl < 0) {
+                    losses++;
+                    grossLoss += Math.abs(finalPnl);
+                    if (finalPnl < worstLoss) worstLoss = finalPnl;
+                }
+
+                // Table Row
                 const tr = document.createElement('tr');
-                const isProfitable = t.pnl >= 0;
-                tr.className = 'hover:bg-gray-800/30 transition-colors';
+                const isProfitable = finalPnl >= 0;
+                tr.className = 'hover:bg-slate-800/40 transition-colors';
                 tr.innerHTML = `
-                    <td class="py-3 font-semibold text-white">${t.symbol}</td>
-                    <td class="py-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${t.type === 'LONG' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}">${t.type}</span></td>
-                    <td class="py-3 text-gray-300">₹${t.entry.toLocaleString('en-IN')} &rarr; ₹${t.exit.toLocaleString('en-IN')}</td>
-                    <td class="py-3 font-semibold ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}">${isProfitable ? '+' : ''}₹${t.pnl.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td class="py-3 text-right">
-                        <button onclick="deleteTrade('${t.id}')" class="text-gray-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="py-2.5 font-bold text-white">${t.symbol}</td>
+                    <td class="py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold ${t.type === 'LONG' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">${t.type}</span></td>
+                    <td class="py-2.5 text-slate-300">₹${t.entry} &rarr; ₹${t.exit}</td>
+                    <td class="py-2.5 font-bold ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}">${isProfitable ? '+' : ''}₹${finalPnl.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                    <td class="py-2.5 text-slate-400">${t.setup || 'Standard'}</td>
+                    <td class="py-2.5 text-right space-x-2">
+                        <button onclick="editTrade('${t.id}')" title="Edit Trade" class="text-slate-400 hover:text-amber-400 transition"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteTrade('${t.id}')" title="Delete Trade" class="text-slate-400 hover:text-rose-400 transition"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
+            // Calculate Streak
+            for (let i = 0; i < trades.length; i++) {
+                const pnl = trades[i].netPnl !== undefined ? trades[i].netPnl : trades[i].pnl;
+                if (i === 0) {
+                    currentStreak = pnl >= 0 ? 1 : -1;
+                } else {
+                    if (pnl >= 0 && currentStreak > 0) currentStreak++;
+                    else if (pnl < 0 && currentStreak < 0) currentStreak--;
+                    else break;
+                }
+            }
+
+            // Update Metrics Cards
             const winRate = trades.length > 0 ? ((wins / trades.length) * 100).toFixed(1) : '0.0';
             const profitFactor = grossLoss === 0 ? grossWin.toFixed(2) : (grossWin / grossLoss).toFixed(2);
-            const avgPnl = trades.length > 0 ? (totalPnl / trades.length).toFixed(2) : '0.00';
+            const avgPnl = trades.length > 0 ? (totalNetPnl / trades.length).toFixed(2) : '0.00';
 
             const pnlElem = document.getElementById('kpiNetPnl');
-            pnlElem.innerText = `${totalPnl >= 0 ? '+' : ''}₹${totalPnl.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            pnlElem.className = `text-2xl font-bold ${totalPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            pnlElem.innerText = `${totalNetPnl >= 0 ? '+' : ''}₹${totalNetPnl.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+            pnlElem.className = `text-xl font-bold font-mono mt-1 ${totalNetPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
+            document.getElementById('kpiCharges').innerText = `Brokerage: ₹${totalCharges.toLocaleString('en-IN')}`;
             document.getElementById('kpiWinRate').innerText = `${winRate}%`;
-            document.getElementById('kpiWinLoss').innerText = `${wins} W / ${losses} L`;
+            document.getElementById('kpiWinLoss').innerText = `${wins}W / ${losses}L`;
             document.getElementById('kpiProfitFactor').innerText = profitFactor;
             document.getElementById('kpiTotalTrades').innerText = trades.length;
-            document.getElementById('kpiAvgTrade').innerText = `Avg: ₹${parseFloat(avgPnl).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('kpiAvgTrade').innerText = `Avg: ₹${parseFloat(avgPnl).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+            document.getElementById('kpiBestWin').innerText = `₹${bestWin.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+            document.getElementById('kpiWorstLoss').innerText = `₹${worstLoss.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+            const streakElem = document.getElementById('kpiStreak');
+            if (currentStreak > 0) {
+                streakElem.innerText = `Streak: ${currentStreak}W 🔥`;
+                streakElem.className = "text-[10px] text-emerald-400 block mt-0.5";
+            } else if (currentStreak < 0) {
+                streakElem.innerText = `Streak: ${Math.abs(currentStreak)}L ⚠️`;
+                streakElem.className = "text-[10px] text-rose-400 block mt-0.5";
+            } else {
+                streakElem.innerText = "Streak: 0";
+                streakElem.className = "text-[10px] text-slate-500 block mt-0.5";
+            }
 
             updateChart(trades);
         }
@@ -374,23 +527,34 @@
                 data: {
                     labels: [],
                     datasets: [{
-                        label: 'Cumulative Equity (₹)',
+                        label: 'Net Equity (₹)',
                         data: [],
                         borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.08)',
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.2
+                        tension: 0.25,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { grid: { color: 'rgba(48, 54, 62, 0.4)' }, ticks: { color: '#8b949e' } },
-                        y: { grid: { color: 'rgba(48, 54, 62, 0.4)' }, ticks: { color: '#8b949e' } }
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 } } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 } } }
                     },
-                    plugins: { legend: { display: false } }
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` Net P&L: ₹${context.raw.toLocaleString('en-IN')}`;
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
@@ -398,14 +562,15 @@
         function updateChart(trades) {
             if (!chartInstance) return;
             const chronological = [...trades].reverse();
-            let total = 0;
-            const labels = ['Start'];
+            let runningPnl = 0;
+            const labels = ['0'];
             const data = [0];
 
             chronological.forEach((t, i) => {
-                total += t.pnl;
+                const pnl = t.netPnl !== undefined ? t.netPnl : t.pnl;
+                runningPnl += pnl;
                 labels.push(`#${i + 1} ${t.symbol}`);
-                data.push(total);
+                data.push(runningPnl);
             });
 
             chartInstance.data.labels = labels;
