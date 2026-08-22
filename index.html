@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaJournal - Trading Dashboard</title>
+    <title>AlphaJournal - Professional Trading Journal</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
@@ -25,7 +25,7 @@
             <span class="text-xl font-bold text-white tracking-wide">Alpha<span class="text-emerald-400">Journal</span></span>
         </div>
         <div class="flex items-center gap-4">
-            <span id="userGreeting" class="text-sm font-medium text-gray-400 hidden">Welcome, <span id="usernameDisplay" class="text-emerald-400 font-semibold"></span></span>
+            <span id="userGreeting" class="text-sm font-medium text-gray-400 hidden">Logged in as: <span id="emailDisplay" class="text-emerald-400 font-semibold"></span></span>
             <button id="authBtn" class="px-4 py-2 text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-black rounded-lg transition shadow-lg shadow-emerald-500/20">Login / Signup</button>
             <button id="logoutBtn" class="px-4 py-2 text-sm font-medium bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition hidden">Logout</button>
         </div>
@@ -34,14 +34,14 @@
     <!-- Main Content -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
 
-        <!-- KPI Metrics Cards -->
+        <!-- KPI Metrics Cards (In INR ₹) -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="glass-panel p-5 rounded-xl">
                 <div class="flex justify-between items-center text-gray-400 text-xs font-medium mb-2 uppercase tracking-wider">
                     <span>Total Net P&L</span>
-                    <i class="fa-solid fa-wallet text-gray-500 text-sm"></i>
+                    <i class="fa-solid fa-indian-rupee-sign text-gray-500 text-sm"></i>
                 </div>
-                <div id="kpiNetPnl" class="text-2xl font-bold text-white">$0.00</div>
+                <div id="kpiNetPnl" class="text-2xl font-bold text-white">₹0.00</div>
                 <span id="kpiPnlPct" class="text-xs text-gray-500 mt-1 block">0% Return</span>
             </div>
 
@@ -69,14 +69,14 @@
                     <i class="fa-solid fa-list-check text-gray-500 text-sm"></i>
                 </div>
                 <div id="kpiTotalTrades" class="text-2xl font-bold text-white">0</div>
-                <span id="kpiAvgTrade" class="text-xs text-gray-500 mt-1 block">Avg: $0.00</span>
+                <span id="kpiAvgTrade" class="text-xs text-gray-500 mt-1 block">Avg: ₹0.00</span>
             </div>
         </section>
 
-        <!-- Chart -->
+        <!-- Chart Section -->
         <section class="glass-panel p-6 rounded-xl">
             <h2 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> Cumulative Equity Curve
+                <i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> Cumulative Equity Curve (₹)
             </h2>
             <div class="h-64 relative">
                 <canvas id="equityChart"></canvas>
@@ -94,7 +94,7 @@
                 <form id="tradeForm" class="space-y-4">
                     <div>
                         <label class="text-xs font-medium text-gray-400 block mb-1">Symbol / Ticker</label>
-                        <input type="text" id="tradeSymbol" placeholder="e.g. NIFTY, AAPL, BTC" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 uppercase">
+                        <input type="text" id="tradeSymbol" placeholder="e.g. NIFTY, BANKNIFTY, RELIANCE" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 uppercase">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
@@ -105,23 +105,23 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Quantity</label>
-                            <input type="number" step="any" id="tradeQty" placeholder="10" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <label class="text-xs font-medium text-gray-400 block mb-1">Quantity / Lots</label>
+                            <input type="number" step="any" id="tradeQty" placeholder="50" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Entry Price ($)</label>
-                            <input type="number" step="any" id="tradeEntry" placeholder="100.00" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <label class="text-xs font-medium text-gray-400 block mb-1">Entry Price (₹)</label>
+                            <input type="number" step="any" id="tradeEntry" placeholder="2450.00" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
-                            <label class="text-xs font-medium text-gray-400 block mb-1">Exit Price ($)</label>
-                            <input type="number" step="any" id="tradeExit" placeholder="115.00" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <label class="text-xs font-medium text-gray-400 block mb-1">Exit Price (₹)</label>
+                            <input type="number" step="any" id="tradeExit" placeholder="2500.00" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                         </div>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-400 block mb-1">Setup / Strategy</label>
-                        <input type="text" id="tradeSetup" placeholder="e.g. 5 EMA, Breakout" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="tradeSetup" placeholder="e.g. Support Bounce, Breakout" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                     </div>
                     <button type="submit" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg text-sm transition">Record Trade</button>
                 </form>
@@ -141,8 +141,8 @@
                             <tr class="border-b border-gray-800 text-gray-400 text-xs uppercase">
                                 <th class="pb-3">Symbol</th>
                                 <th class="pb-3">Type</th>
-                                <th class="pb-3">Entry &rarr; Exit</th>
-                                <th class="pb-3">P&L ($)</th>
+                                <th class="pb-3">Entry &rarr; Exit (₹)</th>
+                                <th class="pb-3">P&L (₹)</th>
                                 <th class="pb-3">Return</th>
                                 <th class="pb-3 text-right">Delete</th>
                             </tr>
@@ -157,58 +157,70 @@
         </div>
     </main>
 
-    <!-- Auth Modal -->
+    <!-- Email Auth Modal with Verification Simulation -->
     <div id="authModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="glass-panel max-w-sm w-full p-6 rounded-2xl border border-gray-700 shadow-2xl relative">
             <button id="closeAuthBtn" class="absolute top-4 right-4 text-gray-400 hover:text-white">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
+            
             <div class="text-center mb-6">
-                <h3 class="text-xl font-bold text-white mb-1" id="authModalTitle">Welcome Back</h3>
-                <p class="text-xs text-gray-400" id="authModalDesc">Enter username to authenticate</p>
+                <h3 class="text-xl font-bold text-white mb-1" id="authModalTitle">Secure Account Access</h3>
+                <p class="text-xs text-gray-400" id="authModalDesc">Enter your professional email to proceed</p>
             </div>
+
             <form id="authForm" class="space-y-4">
                 <div>
-                    <label class="text-xs font-medium text-gray-400 block mb-1">Username</label>
-                    <input type="text" id="authUsername" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <label class="text-xs font-medium text-gray-400 block mb-1">Email Address</label>
+                    <input type="email" id="authEmail" placeholder="trader@example.com" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                 </div>
-                <div>
+                <div id="passwordGroup">
                     <label class="text-xs font-medium text-gray-400 block mb-1">Password</label>
-                    <input type="password" id="authPassword" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                 </div>
-                <button type="submit" id="authSubmitBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg text-sm transition">Sign In</button>
+                
+                <!-- Verification Code Section (Hidden by default during signup trigger) -->
+                <div id="otpGroup" class="hidden space-y-2">
+                    <label class="text-xs font-medium text-emerald-400 block">Enter 4-Digit Verification Code (Simulated)</label>
+                    <div class="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-center text-xs text-emerald-300 mb-2">
+                        Verification code sent to your email! (Demo code is: <b id="demoOtpCode">1234</b>)
+                    </div>
+                    <input type="text" id="otpInput" maxlength="4" placeholder="1234" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-center tracking-widest text-lg font-bold text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <button type="submit" id="authSubmitBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg text-sm transition">Continue</button>
             </form>
+
             <div class="text-center mt-4">
                 <button id="authToggleBtn" type="button" class="text-xs text-emerald-400 hover:underline">Don't have an account? Sign Up</button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Application Engine -->
+    <!-- JavaScript Engine -->
     <script>
-        // State Management
-        let trades = JSON.parse(localStorage.getItem('alpha_trades')) || [];
-        let currentUser = localStorage.getItem('alpha_user') || null;
+        let trades = JSON.parse(localStorage.getItem('alpha_trades_inr')) || [];
+        let currentUser = localStorage.getItem('alpha_user_email') || null;
         let isSignup = false;
+        let verificationStep = false;
+        let generatedOtp = '';
         let chartInstance = null;
 
-        // Core Initialization
         document.addEventListener('DOMContentLoaded', () => {
-            initAuth();
+            initAuthUI();
             initChart();
             renderDashboard();
             attachEventListeners();
         });
 
-        // Global functions
         window.deleteTrade = function(id) {
             trades = trades.filter(t => t.id !== id);
             saveAndRender();
         };
 
         function attachEventListeners() {
-            // Auth Modal Controls
             document.getElementById('authBtn').addEventListener('click', () => {
+                resetAuthModal();
                 document.getElementById('authModal').classList.remove('hidden');
             });
 
@@ -218,29 +230,59 @@
 
             document.getElementById('logoutBtn').addEventListener('click', () => {
                 currentUser = null;
-                localStorage.removeItem('alpha_user');
-                initAuth();
+                localStorage.removeItem('alpha_user_email');
+                initAuthUI();
             });
 
             document.getElementById('authToggleBtn').addEventListener('click', () => {
                 isSignup = !isSignup;
-                document.getElementById('authModalTitle').innerText = isSignup ? 'Create Account' : 'Welcome Back';
-                document.getElementById('authModalDesc').innerText = isSignup ? 'Sign up to sync your stats' : 'Enter username to authenticate';
-                document.getElementById('authSubmitBtn').innerText = isSignup ? 'Sign Up' : 'Sign In';
-                document.getElementById('authToggleBtn').innerText = isSignup ? 'Already have an account? Sign In' : "Don't have an account? Sign Up";
+                resetAuthModal();
             });
 
             document.getElementById('authForm').addEventListener('submit', (e) => {
                 e.preventDefault();
-                const username = document.getElementById('authUsername').value.trim();
-                if (!username) return;
-                currentUser = username;
-                localStorage.setItem('alpha_user', currentUser);
-                initAuth();
+                const email = document.getElementById('authEmail').value.trim();
+                const password = document.getElementById('authPassword').value;
+
+                if (!email) return;
+
+                // Basic Email Regex Validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+
+                if (isSignup && !verificationStep) {
+                    // Step 1 of Signup: Generate and prompt verification code
+                    generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
+                    document.getElementById('demoOtpCode').innerText = generatedOtp;
+                    
+                    document.getElementById('passwordGroup').classList.add('hidden');
+                    document.getElementById('otpGroup').classList.remove('hidden');
+                    document.getElementById('authSubmitBtn').innerText = 'Verify & Register';
+                    verificationStep = true;
+                    return;
+                }
+
+                if (isSignup && verificationStep) {
+                    // Step 2 of Signup: Verify Code
+                    const enteredOtp = document.getElementById('otpInput').value.trim();
+                    if (enteredOtp !== generatedOtp) {
+                        alert('Invalid verification code. Please check the demo code displayed above.');
+                        return;
+                    }
+                }
+
+                // Authentication Success
+                currentUser = email;
+                localStorage.setItem('alpha_user_email', currentUser);
+                initAuthUI();
                 document.getElementById('authModal').classList.add('hidden');
+                alert(isSignup ? 'Account verified and registered successfully!' : 'Logged in successfully!');
             });
 
-            // Trade Submission
+            // Trade Submission Form
             document.getElementById('tradeForm').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const symbol = document.getElementById('tradeSymbol').value.toUpperCase().trim();
@@ -257,7 +299,7 @@
 
                 const newTrade = {
                     id: Date.now(),
-                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    date: new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
                     symbol, type, qty, entry, exit, setup, pnl, pnlPct
                 };
 
@@ -266,7 +308,6 @@
                 document.getElementById('tradeForm').reset();
             });
 
-            // Clear All
             document.getElementById('clearTradesBtn').addEventListener('click', () => {
                 if (trades.length > 0 && confirm('Are you sure you want to clear all logged trades?')) {
                     trades = [];
@@ -275,15 +316,36 @@
             });
         }
 
-        function initAuth() {
+        function resetAuthModal() {
+            verificationStep = false;
+            document.getElementById('passwordGroup').classList.remove('hidden');
+            document.getElementById('otpGroup').classList.add('hidden');
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
+            document.getElementById('otpInput').value = '';
+
+            if (isSignup) {
+                document.getElementById('authModalTitle').innerText = 'Create Account';
+                document.getElementById('authModalDesc').innerText = 'Register with email & verification';
+                document.getElementById('authSubmitBtn').innerText = 'Send Verification Code';
+                document.getElementById('authToggleBtn').innerText = 'Already have an account? Sign In';
+            } else {
+                document.getElementById('authModalTitle').innerText = 'Welcome Back';
+                document.getElementById('authModalDesc').innerText = 'Enter your email and password to log in';
+                document.getElementById('authSubmitBtn').innerText = 'Sign In';
+                document.getElementById('authToggleBtn').innerText = "Don't have an account? Sign Up";
+            }
+        }
+
+        function initAuthUI() {
             const userGreeting = document.getElementById('userGreeting');
-            const usernameDisplay = document.getElementById('usernameDisplay');
+            const emailDisplay = document.getElementById('emailDisplay');
             const authBtn = document.getElementById('authBtn');
             const logoutBtn = document.getElementById('logoutBtn');
 
             if (currentUser) {
                 userGreeting.classList.remove('hidden');
-                usernameDisplay.innerText = currentUser;
+                emailDisplay.innerText = currentUser;
                 authBtn.classList.add('hidden');
                 logoutBtn.classList.remove('hidden');
             } else {
@@ -294,7 +356,7 @@
         }
 
         function saveAndRender() {
-            localStorage.setItem('alpha_trades', JSON.stringify(trades));
+            localStorage.setItem('alpha_trades_inr', JSON.stringify(trades));
             renderDashboard();
         }
 
@@ -306,13 +368,13 @@
 
         function calculateKPIs() {
             if (trades.length === 0) {
-                document.getElementById('kpiNetPnl').innerText = '$0.00';
+                document.getElementById('kpiNetPnl').innerText = '₹0.00';
                 document.getElementById('kpiPnlPct').innerText = '0% Return';
                 document.getElementById('kpiWinRate').innerText = '0.0%';
                 document.getElementById('kpiWinLoss').innerText = '0 W / 0 L';
                 document.getElementById('kpiProfitFactor').innerText = '0.00';
                 document.getElementById('kpiTotalTrades').innerText = '0';
-                document.getElementById('kpiAvgTrade').innerText = 'Avg: $0.00';
+                document.getElementById('kpiAvgTrade').innerText = 'Avg: ₹0.00';
                 return;
             }
 
@@ -334,14 +396,14 @@
             const avgPnl = (totalPnl / trades.length).toFixed(2);
 
             const pnlElem = document.getElementById('kpiNetPnl');
-            pnlElem.innerText = `${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}`;
+            pnlElem.innerText = `${totalPnl >= 0 ? '+' : ''}₹${totalPnl.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             pnlElem.className = `text-2xl font-bold ${totalPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
             document.getElementById('kpiWinRate').innerText = `${winRate}%`;
             document.getElementById('kpiWinLoss').innerText = `${wins} W / ${losses} L`;
             document.getElementById('kpiProfitFactor').innerText = profitFactor;
             document.getElementById('kpiTotalTrades').innerText = trades.length;
-            document.getElementById('kpiAvgTrade').innerText = `Avg: $${avgPnl}`;
+            document.getElementById('kpiAvgTrade').innerText = `Avg: ₹${parseFloat(avgPnl).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         }
 
         function renderTable() {
@@ -362,8 +424,8 @@
                 tr.innerHTML = `
                     <td class="py-3 font-semibold text-white">${t.symbol} <span class="text-xs text-gray-500 font-normal block">${t.date}</span></td>
                     <td class="py-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${t.type === 'LONG' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}">${t.type}</span></td>
-                    <td class="py-3 text-gray-300">$${t.entry.toFixed(2)} &rarr; $${t.exit.toFixed(2)}</td>
-                    <td class="py-3 font-semibold ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}">${isProfitable ? '+' : ''}$${t.pnl.toFixed(2)}</td>
+                    <td class="py-3 text-gray-300">₹${t.entry.toLocaleString('en-IN')} &rarr; ₹${t.exit.toLocaleString('en-IN')}</td>
+                    <td class="py-3 font-semibold ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}">${isProfitable ? '+' : ''}₹${t.pnl.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                     <td class="py-3 text-xs ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}">${isProfitable ? '+' : ''}${t.pnlPct.toFixed(2)}%</td>
                     <td class="py-3 text-right">
                         <button onclick="deleteTrade(${t.id})" class="text-gray-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
@@ -380,7 +442,7 @@
                 data: {
                     labels: [],
                     datasets: [{
-                        label: 'Equity ($)',
+                        label: 'Cumulative Equity (₹)',
                         data: [],
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -405,7 +467,7 @@
             if (!chartInstance) return;
             const chronological = [...trades].reverse();
             let total = 0;
-            const labels = ['0'];
+            const labels = ['Start'];
             const data = [0];
 
             chronological.forEach((t, i) => {
