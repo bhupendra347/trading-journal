@@ -1,1 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaJournal - Professional Trading Journal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
+        .glass-panel { background: rgba(22, 27, 34, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(48, 54, 62, 0.7); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
 
+    <!-- Top Navigation -->
+    <header class="glass-panel sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-gray-800">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-chart-line text-emerald-400 text-2xl"></i>
+            <span class="text-xl font-bold tracking-wide text-white">Alpha<span class="text-emerald-400">Journal</span></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="userGreeting" class="text-sm font-medium text-gray-400 hidden">Welcome, <span id="usernameDisplay" class="text-emerald-400 font-semibold"></span></span>
+            <button id="authBtn" onclick="openAuthModal()" class="px-4 py-2 text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-black rounded-lg transition-all shadow-lg shadow-emerald-500/20">Login / Signup</button>
+            <button id="logoutBtn" onclick="logout()" class="px-4 py-2 text-sm font-medium bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition-all hidden">Logout</button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+
+        <!-- Analytics Overview Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-panel p-5 rounded-xl">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
+                    <span>Total Net P&L</span>
+                    <i class="fa-solid fa-wallet text-gray-500"></i>
+                </div>
+                <div id="kpiNetPnl" class="text-2xl font-bold text-white">$0.00</div>
+                <span id="kpiPnlPct" class="text-xs text-gray-500 mt-1 block">0% Return</span>
+            </div>
+
+            <div class="glass-panel p-5 rounded-xl">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
+                    <span>Win Rate</span>
+                    <i class="fa-solid fa-bullseye text-gray-500"></i>
+                </div>
+                <div id="kpiWinRate" class="text-2xl font-bold text-white">0.0%</div>
+                <span id="kpiWinLoss" class="text-xs text-gray-500 mt-1 block">0 W / 0 L</span>
+            </div>
+
+            <div class="glass-panel p-5 rounded-xl">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
+                    <span>Profit Factor</span>
+                    <i class="fa-solid fa-scale-balanced text-gray-500"></i>
+                </div>
+                <div id="kpiProfitFactor" class="text-2xl font-bold text-white">0.00</div>
+                <span class="text-xs text-gray-500 mt-1 block">Gross Win / Gross Loss</span>
+            </div>
+
+            <div class="glass-panel p-5 rounded-xl">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
+                    <span>Total Trades</span>
+                    <i class="fa-solid fa-list-check text-gray-500"></i>
+                </div>
+                <div id="kpiTotalTrades" class="text-2xl font-bold text-white">0</div>
+                <span id="kpiAvgTrade" class="text-xs text-gray-500 mt-1 block">Avg: $0.00</span>
+            </div>
+        </section>
+
+        <!-- Chart Section -->
+        <section class="glass-panel p-6 rounded-xl">
+            <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> Cumulative Equity Curve
+            </h2>
+            <div class="h-64">
+                <canvas id="equityChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Action Section: New Trade Form & Recent History -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Log Trade Form -->
+            <section class="glass-panel p-6 rounded-xl lg:col-span-1">
+                <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-emerald-400"></i> Log New Trade
+                </h2>
+                <form id="tradeForm" onsubmit="handleTradeSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="text-xs font-medium text-gray-400 block mb-1">Symbol / Asset</label>
+                        <input type="text" id="tradeSymbol" placeholder="e.g. NIFTY, AAPL, BTC" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 uppercase">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-medium text-gray-400 block mb-1">Type</label>
+                            <select id="tradeType" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                                <option value="LONG">Long (Buy)</option>
+                                <option value="SHORT">Short (Sell)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium text-gray-400 block mb-1">Quantity</label>
+                            <input type="number" step="any" id="tradeQty" placeholder="10" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-medium text-gray-400 block mb-1">Entry Price</label>
+                            <input type="number" step="any" id="tradeEntry" placeholder="100.00" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium text-gray-400 block mb-1">Exit Price</label>
+                            <input type="number" step="any" id="tradeExit" placeholder="110.00" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-400 block mb-1">Setup / Strategy</label>
+                        <input type="text" id="tradeSetup" placeholder="e.g. Breakout, Pullback" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-400 block mb-1">Notes</label>
+                        <textarea id="tradeNotes" rows="2" placeholder="Trade psychology, mistakes, rules followed..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg text-sm transition-all shadow-md shadow-emerald-500/10">Save Trade</button>
+                </form>
+            </section>
+
+            <!-- Trade History Table -->
+            <section class="glass-panel p-6 rounded-xl lg:col-span-2 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Trade History
+                    </h2>
+                    <button onclick="clearAllTrades()" class="text-xs text-gray-500 hover:text-rose-400 transition-colors">Clear All</button>
+                </div>
+                <div class="flex-1 overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-800 text-gray-400 text-xs font-medium">
+                                <th class="pb-3">Symbol</th>
+                                <th class="pb-3">Type</th>
+                                <th class="pb-3">Entry / Exit</th>
+                                <th class="pb-3">P&L ($)</th>
+                                <th class="pb-3">P&L (%)</th>
+                                <th class="pb-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesTableBody" class="divide-y divide-gray-800/50">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                    <div id="emptyState" class="py-12 text-center text-gray-500 text-sm hidden">
+                        No trades logged yet. Start recording your positions above!
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Auth Modal (Login / Signup) -->
+    <div id="authModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-2xl border border-gray-700 shadow-2xl relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-6">
+                <h3 class="text-xl font-bold text-white mb-1" id="authModalTitle">Welcome Back</h3>
+                <p class="text-xs text-gray-400" id="authModalDesc">Enter your details to sync your journal</p>
+            </div>
+            <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="text-xs font-medium text-gray-400 block mb-1">Username</label>
+                    <input type="text" id="authUsername" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-xs font-medium text-gray-400 block mb-1">Password</label>
+                    <input type="password" id="authPassword" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <button type="submit" id="authSubmitBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg text-sm transition-all shadow-md">Sign In</button>
+            </form>
+            <div class="text-center mt-4">
+                <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-xs text-emerald-400 hover:underline">Don't have an account? Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        let trades = JSON.parse(localStorage.getItem('alpha_trades')) || [];
+        let currentUser = localStorage.getItem('alpha_user') || null;
+        let isSignup = false;
+        let chartInstance = null;
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initAuthUI();
+            initChart();
+            renderDashboard();
+        });
+
+        // Auth Logic
+        function initAuthUI() {
+            const userGreeting = document.getElementById('userGreeting');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+            const authBtn = document.getElementById('authBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (currentUser) {
+                userGreeting.classList.remove('hidden');
+                usernameDisplay.innerText = currentUser;
+                authBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+            } else {
+                userGreeting.classList.add('hidden');
+                authBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        function openAuthModal() { document.getElementById('authModal').classList.remove('hidden'); }
+        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
+
+        function toggleAuthMode() {
+            isSignup = !isSignup;
+            document.getElementById('authModalTitle').innerText = isSignup ? 'Create Account' : 'Welcome Back';
+            document.getElementById('authModalDesc').innerText = isSignup ? 'Join to start journaling' : 'Enter your details to log in';
+            document.getElementById('authSubmitBtn').innerText = isSignup ? 'Sign Up' : 'Sign In';
+            document.getElementById('authToggleBtn').innerText = isSignup ? 'Already have an account? Sign In' : "Don't have an account? Sign Up";
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('authUsername').value.trim();
+            if (!username) return;
+            currentUser = username;
+            localStorage.setItem('alpha_user', currentUser);
+            initAuthUI();
+            closeAuthModal();
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('alpha_user');
+            initAuthUI();
+        }
+
+        // Trading Logic
+        function handleTradeSubmit(e) {
+            e.preventDefault();
+            const symbol = document.getElementById('tradeSymbol').value.toUpperCase();
+            const type = document.getElementById('tradeType').value;
+            const qty = parseFloat(document.getElementById('tradeQty').value);
+            const entry = parseFloat(document.getElementById('tradeEntry').value);
+            const exit = parseFloat(document.getElementById('tradeExit').value);
+            const setup = document.getElementById('tradeSetup').value;
+            const notes = document.getElementById('tradeNotes').value;
+
+            const pnl = type === 'LONG' ? (exit - entry) * qty : (entry - exit) * qty;
+            const pnlPct = type === 'LONG' ? ((exit - entry) / entry) * 100 : ((entry - exit) / entry) * 100;
+
+            const newTrade = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                symbol, type, qty, entry, exit, setup, notes, pnl, pnlPct
+            };
+
+            trades.unshift(newTrade);
+            saveAndRender();
+            document.getElementById('tradeForm').reset();
+        }
+
+        function deleteTrade(id) {
+            trades = trades.filter(t => t.id !== id);
+            saveAndRender();
+        }
+
+        function clearAllTrades() {
+            if (confirm("Are you sure you want to clear all recorded trades?")) {
+                trades = [];
+                saveAndRender();
+            }
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('alpha_trades', JSON.stringify(trades));
+            renderDashboard();
+        }
+
+        // Analytics & Calculations
+        function renderDashboard() {
+            renderTable();
+            calculateKPIs();
+            updateChart();
+        }
+
+        function calculateKPIs() {
+            if (trades.length === 0) {
+                document.getElementById('kpiNetPnl').innerText = '$0.00';
+                document.getElementById('kpiPnlPct').innerText = '0% Return';
+                document.getElementById('kpiWinRate').innerText = '0.0%';
+                document.getElementById('kpiWinLoss').innerText = '0 W / 0 L';
+                document.getElementById('kpiProfitFactor').innerText = '0.00';
+                document.getElementById('kpiTotalTrades').innerText = '0';
+                document.getElementById('kpiAvgTrade').innerText = 'Avg: $0.00';
+                return;
+            }
+
+            let totalPnl = 0, wins = 0, losses = 0, grossWin = 0, grossLoss = 0;
+
+            trades.forEach(t => {
+                totalPnl += t.pnl;
+                if (t.pnl > 0) {
+                    wins++;
+                    grossWin += t.pnl;
+                } else if (t.pnl < 0) {
+                    losses++;
+                    grossLoss += Math.abs(t.pnl);
+                }
+            });
+
+            const winRate = ((wins / trades.length) * 100).toFixed(1);
+            const profitFactor = grossLoss === 0 ? grossWin.toFixed(2) : (grossWin / grossLoss).toFixed(2);
+            const avgPnl = (totalPnl / trades.length).toFixed(2);
+
+            const pnlElem = document.getElementById('kpiNetPnl');
+            pnlElem.innerText = `${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}`;
+            pnlElem.className = `text-2xl font-bold ${totalPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            document.getElementById('kpiWinRate').innerText = `${winRate}%`;
+            document.getElementById('kpiWinLoss').innerText = `${wins} W / ${losses} L`;
+            document.getElementById('kpiProfitFactor').innerText = profitFactor;
+            document.getElementById('kpiTotalTrades').innerText = trades.length;
+            document.getElementById('kpiAvgTrade').innerText = `Avg: $${avgPnl}`;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tradesTableBody');
+            const emptyState = document.getElementById('emptyState');
+            tbody.innerHTML = '';
+
+            if (trades.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            trades.forEach(t => {
+                const tr = document.createElement('tr');
+                const isProfitable = t.pnl >= 0;
+                tr.className = 'hover:bg-gray-800/30 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-3 font-semibold text-white">${t.symbol} <span class="text-xs text-gray-500 font-normal block">${t.date}</span></td>
+                    <td class="py-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${t.type === 'LONG' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}">${t.type}</span></td>
+                    <td class="py-3 text-gray-300">$${t.entry.toFixed(2)} &rarr; $${t.exit.toFixed(2)}</td>
+                    <td class="py-3 font-semibold ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}">${isProfitable ? '+' : ''}$${t.pnl.toFixed(2)}</td>
+                    <td class="py-3 text-xs ${isProfitable ? 'text-emerald-40
