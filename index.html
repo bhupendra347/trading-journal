@@ -308,7 +308,7 @@
                     errStr.includes("invalid-login-credentials") || 
                     errStr.includes("wrong-password") || 
                     errStr.includes("user-not-found")) {
-                    errorMessage = "Incorrect email or password. Please verify your credentials.";
+                    errorMessage = "Incorrect email or password.";
                 } else if (errStr.includes("email-already-in-use")) {
                     errorMessage = "This email is already registered. Please login instead.";
                 } else if (errStr.includes("weak-password")) {
